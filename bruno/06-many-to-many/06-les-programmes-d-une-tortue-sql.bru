@@ -1,0 +1,19 @@
+meta {
+  name: Les programmes d'une tortue — SQL
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/api/sql/programs/of-turtle/{{sqlId}}
+  body: none
+  auth: none
+}
+
+docs {
+  Le sens inverse, au même prix : le lazy loading traverse la table de jointure
+  puis la table `program`.
+
+  C'est la propriété remarquable du modèle relationnel — la relation est stockée
+  **entre** les deux entités, donc les deux sens se valent.
+}

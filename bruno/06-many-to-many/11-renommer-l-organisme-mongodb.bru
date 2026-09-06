@@ -1,0 +1,44 @@
+meta {
+  name: Renommer l'organisme — MongoDB
+  type: http
+  seq: 11
+}
+
+patch {
+  url: {{baseUrl}}/api/mongo/programs/organisation?from=CNRS&to=CNRS%20%2F%20IRD
+  body: none
+  auth: none
+}
+
+docs {
+  # Le prix de la duplication
+
+  **Deux écritures**, et le résultat le dit : `{ programs: 2, turtles: 52 }` — le CNRS
+  finance deux programmes, et cinquante-deux tortues en portent la copie.
+
+  1. les deux documents source dans `programs` ;
+  2. **les 52 copies** dans `turtles` :
+
+  ```javascript
+  db.turtles.updateMany(
+    { "programs.organisation": "CNRS" },
+    { $set: { "programs.$[element].organisation": "CNRS / IRD" } },
+    { arrayFilters: [ { "element.organisation": "CNRS" } ] })
+  ```
+
+  `$[element]` + `arrayFilters` ne touche que les sous-documents concernés : les autres
+  programmes de la même tortue (« Reef Watch Queensland », AIMS) restent intacts.
+
+  **Ce qu'il faut retenir :**
+
+  * entre les deux écritures, la base est **incohérente** — et il n'y a pas de
+    transaction pour l'imposer (sauf replica set et code explicite) ;
+  * **rien**, dans le moteur, n'oblige à faire la seconde. C'est à l'application d'y
+    penser, à chaque endroit où la source change ;
+  * d'où le critère : on ne duplique que ce qui est **stable** et **lu souvent**. Un nom
+    d'organisme change une fois par décennie et s'affiche à chaque écran : bon candidat.
+    Un poids qui change à chaque pesée : mauvais candidat.
+
+  Le `programId`, lui, reste la source de vérité : en cas de doute, c'est la jointure
+  (`$lookup`) qui fait foi, pas la copie.
+}

@@ -1,0 +1,20 @@
+meta {
+  name: MongoDB — anatomie d'un ObjectId
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/mongo/concepts/objectid/{{mongoId}}
+  body: none
+  auth: none
+}
+
+docs {
+  12 octets = 4 (horodatage) + 5 (aléatoire propre au processus) + 3 (compteur).
+
+  Deux conséquences pratiques :
+  1. un `ObjectId` **porte sa date de création** (trier par `_id` ≈ trier par date) ;
+  2. il est généré **par le client**, donc sans aller-retour — là où un `AUTO_INCREMENT`
+     doit être attribué par le serveur.
+}

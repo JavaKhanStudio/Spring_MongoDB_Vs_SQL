@@ -1,0 +1,18 @@
+meta {
+  name: Template $push — ajouter dans un tableau
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/api/mongo/template/{{mongoId}}/observations?site=Anakao&healthScore=9&observer=Cours
+  body: none
+  auth: none
+}
+
+docs {
+  On ajoute une observation sans charger les précédentes. L'équivalent SQL serait un
+  INSERT dans la table fille.
+
+  Vérifiez ensuite avec « 02 · MongoDB — embedding » : l'observation est bien là.
+}

@@ -1,0 +1,17 @@
+meta {
+  name: SQL — l'équivalent : l'API Criteria
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/sql/turtles/search?species=Chelonia%20mydas&sex=M&minWeight=50
+  body: none
+  auth: none
+}
+
+docs {
+  Le `MongoTemplate` n'est pas une bizarrerie de MongoDB : c'est le pendant exact de
+  l'API `CriteriaBuilder` de JPA. Comparez
+  `TurtleSearchService` et `TurtleTemplateService` côte à côte dans l'IDE.
+}

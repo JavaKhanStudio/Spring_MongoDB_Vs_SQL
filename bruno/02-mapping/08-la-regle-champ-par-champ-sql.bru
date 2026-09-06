@@ -1,0 +1,40 @@
+meta {
+  name: La règle, champ par champ — SQL
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/api/sql/habitats/Grande%20Barrière%20de%20corail/turtles
+  body: none
+  auth: none
+}
+
+docs {
+  # Embedding ou reference ? La question se pose CHAMP PAR CHAMP
+
+  On privilégie l'**embedding** quand les données :
+
+  * appartiennent au même **agrégat métier** ;
+  * sont généralement **lues ensemble** ;
+  * ont un **cycle de vie commun**.
+
+  > *« Data that is accessed together should be stored together. »*
+
+  On l'évite quand la duplication devient coûteuse à maintenir : si 100 000 utilisateurs
+  partagent la même entreprise, embarquer ses informations complètes revient à les
+  dupliquer 100 000 fois — et à les maintenir autant de fois si elles changent.
+
+  **L'habitat est le contre-exemple parfait, parce qu'il tranche différemment selon le
+  champ :**
+
+  | Champ | Traitement | Pourquoi |
+  |---|---|---|
+  | `name` | **copié** dans chaque tortue (`habitatName`) | change une fois par décennie, affiché partout |
+  | `waterTempC` | **non copié** | c'est une mesure : elle change tout le temps |
+  | l'objet entier | **jamais embarqué** | 16 tortues le partagent, il a sa vie propre |
+
+  Cette requête montre le côté relationnel : **UNE requête**. Le `join fetch` ramène la
+  température du moment en même temps que les 16 tortues. Rien n'est dupliqué, donc rien
+  ne peut être périmé — mais il a fallu une jointure.
+}

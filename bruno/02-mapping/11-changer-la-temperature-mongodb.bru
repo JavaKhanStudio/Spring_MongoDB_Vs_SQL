@@ -1,0 +1,32 @@
+meta {
+  name: Changer la température — MongoDB
+  type: http
+  seq: 11
+}
+
+patch {
+  url: {{baseUrl}}/api/mongo/habitats/Grande%20Barrière%20de%20corail/temperature?value=28.4
+  body: none
+  auth: none
+}
+
+docs {
+  **Un `$set`, un document, ZÉRO tortue touchée** — précisément parce que la température
+  n'a pas été copiée.
+
+  Mettez cette requête en regard du renommage d'organisme (chapitre 6, n°11), sur la même
+  base :
+
+  | Opération | Champ copié ? | Coût |
+  |---|---|---|
+  | changer la température d'un habitat | non | **1 document** |
+  | renommer un organisme de programme | oui | 2 documents + **52 copies** |
+
+  Même type d'opération, deux ordres de grandeur d'écart — et la seule différence est un
+  choix de modélisation fait bien plus tôt.
+
+  **La règle en découle :** on ne duplique que ce dont la fréquence de mise à jour
+  multipliée par le nombre de copies reste supportable. Un nom d'habitat : rare × 16, on
+  copie. Une température : permanente × 16, on ne copie pas. À 100 000 copies, le calcul
+  penche encore plus vite.
+}

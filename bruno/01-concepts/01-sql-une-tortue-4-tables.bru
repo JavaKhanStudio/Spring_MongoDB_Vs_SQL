@@ -1,0 +1,18 @@
+meta {
+  name: SQL — une tortue = 4 tables
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/sql/concepts/rows/{{sqlId}}
+  body: none
+  auth: none
+}
+
+docs {
+  Les lignes brutes des quatre tables qui, ensemble, forment **une** tortue :
+  `turtle`, `turtle_tag`, `observation`, `habitat`.
+
+  Notez les identifiants entiers, les colonnes `NULL`, et la clé étrangère `habitat_id`.
+}

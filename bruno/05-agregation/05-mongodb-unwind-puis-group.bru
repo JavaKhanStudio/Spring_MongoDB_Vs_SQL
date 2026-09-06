@@ -1,0 +1,21 @@
+meta {
+  name: MongoDB — $unwind puis $group
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/api/mongo/aggregation/sites?top=5
+  body: none
+  auth: none
+}
+
+docs {
+  Les observations sont **dans** la tortue : il faut d'abord les déplier.
+  `$unwind` transforme une tortue à 3 observations en 3 documents.
+
+  C'est l'étape qui déroute le plus au début — et elle n'a pas d'équivalent SQL,
+  précisément parce que le modèle relationnel a déjà éclaté la donnée en tables.
+
+  Comparez les résultats avec la requête précédente : ils sont identiques.
+}

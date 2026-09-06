@@ -1,0 +1,19 @@
+meta {
+  name: MongoDB — open projection (SpEL)
+  type: http
+  seq: 13
+}
+
+get {
+  url: {{baseUrl}}/api/mongo/projections/open?sex=F
+  body: none
+  auth: none
+}
+
+docs {
+  Ici la commande n'a **aucune** clause `projection` : comme l'expression SpEL peut
+  toucher n'importe quel champ, Spring Data charge le document entier puis recompose
+  côté application.
+
+  Une open projection est confortable, pas économique. À savoir avant de la choisir.
+}

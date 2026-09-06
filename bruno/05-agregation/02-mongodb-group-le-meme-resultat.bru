@@ -1,0 +1,21 @@
+meta {
+  name: MongoDB — $group, le même résultat
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/mongo/aggregation/species
+  body: none
+  auth: none
+}
+
+docs {
+  **Résultat identique au SQL, au chiffre près.** La différence est dans l'écriture :
+  on décrit une **suite d'étapes**, chacune transformant le flux de documents.
+
+  Le champ `result.explain` contient le pipeline prêt à coller dans mongosh ou Compass.
+
+  Détail utile : `$group` range toujours la clé de regroupement dans `_id`, d'où le
+  `$project` final qui la renomme.
+}

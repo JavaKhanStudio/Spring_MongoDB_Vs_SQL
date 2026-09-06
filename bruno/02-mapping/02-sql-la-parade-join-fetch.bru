@@ -1,0 +1,16 @@
+meta {
+  name: SQL — la parade : join fetch
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/sql/turtles/{{sqlId}}/fetch-join
+  body: none
+  auth: none
+}
+
+docs {
+  Le même résultat en une requête, avec `left join fetch`. C'est le travail que
+  l'embedding MongoDB rend inutile.
+}

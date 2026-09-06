@@ -1,0 +1,20 @@
+meta {
+  name: MongoDB — la liste complète
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/api/mongo/turtles
+  body: none
+  auth: none
+}
+
+docs {
+  **Une** requête, quel que soit `?limit` — jusqu'à 101 documents, après quoi le curseur
+  demande un lot supplémentaire (`getMore`). Le nom de l'habitat est *dénormalisé* dans chaque document
+  (`habitatName`) : la liste s'affiche sans jamais ouvrir la collection `habitats`.
+
+  Le prix de la dénormalisation : si un habitat est renommé, il faut propager la copie.
+  C'est un choix assumé — on échange de la cohérence facile contre des lectures rapides.
+}

@@ -1,0 +1,18 @@
+meta {
+  name: Template upsert
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrl}}/api/mongo/template/upsert?name=Nouvelle&species=Caretta%20caretta&weightKg=12
+  body: none
+  auth: none
+}
+
+docs {
+  « Crée-la si elle n'existe pas, mets-la à jour sinon », atomiquement, en un aller-retour.
+  Relancez la requête : la seconde fois, le document est mis à jour et non créé.
+
+  Le repository ne sait pas faire (`save()` ne cherche que par `_id`).
+}

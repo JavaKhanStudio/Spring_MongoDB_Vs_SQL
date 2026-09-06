@@ -1,0 +1,16 @@
+meta {
+  name: MongoDB — @Query + fields (projection serveur)
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseUrl}}/api/mongo/queries/tagged/adulte
+  body: none
+  auth: none
+}
+
+docs {
+  `fields = "{ 'name': 1, 'species': 1, '_id': 0 }"` : le serveur ne renvoie que ces champs.
+  Tout le reste arrive à `null` dans l'objet Java — c'est normal, et c'est le but.
+}

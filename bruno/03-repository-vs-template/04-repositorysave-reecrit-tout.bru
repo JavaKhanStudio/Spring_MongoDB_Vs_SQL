@@ -1,0 +1,19 @@
+meta {
+  name: Repository.save() — réécrit tout
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseUrl}}/api/mongo/template/{{mongoId}}/weight-by-save?weightKg=133
+  body: none
+  auth: none
+}
+
+docs {
+  Modifier **un** champ via `save()` : 1 lecture + 1 réécriture **complète**.
+  Dépliez `queries` : le document entier repart sur le réseau, observations comprises.
+
+  Danger réel : tout ce qu'un autre client aurait modifié entre la lecture et
+  l'écriture est écrasé au passage.
+}

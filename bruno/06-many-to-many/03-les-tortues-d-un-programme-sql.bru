@@ -1,0 +1,22 @@
+meta {
+  name: Les tortues d'un programme — SQL
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/sql/programs/Argos%20Océan%20Indien/turtles
+  body: none
+  auth: none
+}
+
+docs {
+  35 tortues, en **une seule requête** et deux jointures :
+  `turtle → turtle_program → program`.
+
+  L'avantage de la jointure : on filtre directement sur `program.name`, sans rien
+  dupliquer et sans résoudre le nom au préalable.
+
+  Le revers : une liste vide ne dit pas si le programme est inconnu ou simplement sans
+  inscrit.
+}

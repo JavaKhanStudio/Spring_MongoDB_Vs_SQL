@@ -1,0 +1,16 @@
+meta {
+  name: MongoDB — égalité sur un tableau = « contient »
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/api/mongo/turtles/tagged/balise-argos
+  body: none
+  auth: none
+}
+
+docs {
+  `{ "tags": "balise-argos" }` ne veut pas dire « le tableau vaut cette valeur » mais
+  « le tableau **contient** cette valeur ». Une des rares surprises du langage de requête.
+}

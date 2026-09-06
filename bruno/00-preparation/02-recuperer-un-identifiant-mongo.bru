@@ -1,0 +1,25 @@
+meta {
+  name: Récupérer un identifiant Mongo
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/mongo/turtles
+  body: none
+  auth: none
+}
+
+script:post-response {
+  bru.setEnvVar("mongoId", res.body.result[0].id);
+}
+
+docs {
+  **Lancez cette requête en premier**, à chaque démarrage de l'application.
+
+  Les `ObjectId` sont régénérés à chaque rechargement du jeu de données : le script
+  ci-dessous range l'identifiant de la première tortue dans la variable
+  d'environnement `mongoId`, utilisée par toutes les requêtes suivantes.
+
+  Côté SQL, l'identifiant reste `1` (auto-increment) : c'est déjà une différence.
+}

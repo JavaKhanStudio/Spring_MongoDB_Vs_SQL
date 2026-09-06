@@ -1,0 +1,24 @@
+meta {
+  name: MongoDB — les index, dont les multikey
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/api/mongo/concepts/indexes
+  body: none
+  auth: none
+}
+
+docs {
+  Les index déclarés par `@Indexed` et créés au démarrage (`auto-index-creation: true`,
+  pratique en formation, à proscrire en production).
+
+  Le point à retenir : un index posé sur un **tableau** (`tags`, `programIds`) devient
+  automatiquement **multikey** — MongoDB indexe chaque élément séparément. C'est ce qui
+  rend `{ tags: "balise-argos" }` aussi rapide qu'une recherche sur un champ scalaire,
+  sans aucune table annexe.
+
+  C'est exactement le rôle que joue, côté SQL, l'index sur `turtle_tag.tag`.
+  Même besoin, deux mises en œuvre.
+}

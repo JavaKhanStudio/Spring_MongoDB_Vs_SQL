@@ -1,0 +1,18 @@
+meta {
+  name: MongoDB — la même derived query
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/mongo/turtles/species/Caretta%20caretta
+  body: none
+  auth: none
+}
+
+docs {
+  **Signature identique**, traduction différente : `{ "species": "Caretta caretta" }`.
+
+  C'est la promesse de Spring Data : la façon d'écrire ne change pas, ce qui change
+  c'est ce que le moteur en fait.
+}

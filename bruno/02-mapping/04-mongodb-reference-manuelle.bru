@@ -1,0 +1,19 @@
+meta {
+  name: MongoDB — manual reference
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/mongo/links/manual/{{mongoId}}
+  body: none
+  auth: none
+}
+
+docs {
+  L'habitat est partagé par plusieurs tortues et évolue seul : on ne le stocke pas en embedded,
+  on stocke son `_id` (`habitatId`, en `ObjectId` grâce à `@Field(targetType = OBJECT_ID)`).
+
+  2 allers-retours — mais c'est **nous** qui décidons du second, et le champ reste
+  utilisable par un `$lookup` côté serveur (voir chapitre 5).
+}

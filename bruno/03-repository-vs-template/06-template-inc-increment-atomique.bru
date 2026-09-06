@@ -1,0 +1,16 @@
+meta {
+  name: Template $inc — incrément atomique
+  type: http
+  seq: 6
+}
+
+patch {
+  url: {{baseUrl}}/api/mongo/template/{{mongoId}}/grow?deltaKg=2.5
+  body: none
+  auth: none
+}
+
+docs {
+  `$inc` est calculé **par le serveur** : aucune lecture, donc aucune course entre
+  clients concurrents. Impossible à exprimer avec `save()`.
+}

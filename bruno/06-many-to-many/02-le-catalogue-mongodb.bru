@@ -1,0 +1,31 @@
+meta {
+  name: Le catalogue — MongoDB
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/mongo/programs
+  body: none
+  auth: none
+}
+
+docs {
+  Mêmes chiffres, obtenus autrement. **MongoDB n'a pas de table de jointure** — la
+  notion n'existe pas. Il faut choisir un côté qui portera la relation : ici la tortue,
+  avec son tableau `programs`.
+
+  Le pipeline part donc de `programs` et regarde dans l'autre sens :
+
+  ```javascript
+  { $lookup: { from: "turtles", localField: "_id",
+               foreignField: "programs.programId", as: "turtles" } }
+  ```
+
+  Deux choses à souligner :
+
+  1. le `foreignField` désigne un champ **dans un tableau** — le `$lookup` se comporte
+     alors comme un « contient » ;
+  2. les programmes sans aucune tortue sont conservés, exactement comme avec le
+     `left join` de la requête précédente.
+}

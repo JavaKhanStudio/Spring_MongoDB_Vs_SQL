@@ -1,0 +1,22 @@
+meta {
+  name: Changer la température — SQL
+  type: http
+  seq: 10
+}
+
+patch {
+  url: {{baseUrl}}/api/sql/habitats/Grande%20Barrière%20de%20corail/temperature?value=28.4
+  body: none
+  auth: none
+}
+
+docs {
+  ```sql
+  update habitat set water_temp_c = ? where name = ?
+  ```
+
+  **Un update, une ligne.** La température n'existe qu'à un seul endroit : les 16 tortues
+  de cet habitat voient la nouvelle valeur immédiatement, sans rien à propager.
+
+  Rejouez la requête n°8 : la nouvelle température y est.
+}

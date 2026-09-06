@@ -1,0 +1,24 @@
+meta {
+  name: Renommer l'organisme — SQL
+  type: http
+  seq: 10
+}
+
+patch {
+  url: {{baseUrl}}/api/sql/programs/organisation?from=CNRS&to=CNRS%20%2F%20IRD
+  body: none
+  auth: none
+}
+
+docs {
+  ```sql
+  update program set organisation = ? where organisation = ?
+  ```
+
+  **Un UPDATE, une ligne.** Toutes les tortues voient immédiatement le nouveau nom : il
+  n'existe qu'à un seul endroit. C'est le bénéfice exact de la normalisation, et la
+  raison pour laquelle dupliquer en SQL est rarement nécessaire.
+
+  (Pour remettre en état : relancez avec `from=CNRS %2F IRD&to=CNRS`, ou redémarrez
+  l'application — les deux bases sont rechargées à chaque démarrage.)
+}

@@ -1,0 +1,18 @@
+meta {
+  name: MongoTemplate — critères dynamiques
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/mongo/template/search?species=Chelonia%20mydas&sex=M&minWeight=50
+  body: none
+  auth: none
+}
+
+docs {
+  Retirez ou ajoutez des paramètres d'URL : le filtre BSON change en conséquence.
+
+  En derived queries, il faudrait **une méthode par combinaison** de critères.
+  C'est le critère de choix numéro un entre les deux outils.
+}

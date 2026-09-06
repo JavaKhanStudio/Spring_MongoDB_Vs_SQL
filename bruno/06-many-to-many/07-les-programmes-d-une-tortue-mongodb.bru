@@ -1,0 +1,28 @@
+meta {
+  name: Les programmes d'une tortue — MongoDB
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/api/mongo/programs/of-turtle/{{mongoId}}
+  body: none
+  auth: none
+}
+
+docs {
+  **Une seule requête** : le document contient déjà le nom et l'organisme de chaque
+  programme. Avec des identifiants nus, il en faudrait une seconde (`$in`) rien que pour
+  afficher les libellés.
+
+  **Comptez les champs de la réponse : trois.** Le jumeau SQL en renvoie quinze.
+
+  Un programme a un acronyme, un responsable scientifique, un budget, un site web, une
+  description de plusieurs lignes, un protocole de terrain imbriqué, un statut, des années
+  de début et de fin… La copie stockée dans la tortue n'emporte que le **nom** et
+  l'**organisme**.
+
+  C'est ce qui sépare la dénormalisation de la duplication naïve : on ne recopie pas
+  l'entité, on recopie l'étiquette qu'on affiche. Les treize autres champs restent dans la
+  collection `programs`, à une requête de distance quand on en a besoin.
+}

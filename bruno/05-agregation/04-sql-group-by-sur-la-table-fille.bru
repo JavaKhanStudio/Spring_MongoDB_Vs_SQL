@@ -1,0 +1,16 @@
+meta {
+  name: SQL — GROUP BY sur la table fille
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/sql/stats/sites
+  body: none
+  auth: none
+}
+
+docs {
+  Grouper par site d'observation : en SQL, la table `observation` a déjà le bon
+  « grain » — une ligne par observation. Une jointure et un `group by` suffisent.
+}

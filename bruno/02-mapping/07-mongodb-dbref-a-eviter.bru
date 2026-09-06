@@ -1,0 +1,25 @@
+meta {
+  name: MongoDB — @DBRef, à éviter
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/api/mongo/links/dbref
+  body: none
+  auth: none
+}
+
+docs {
+  La même liste, mais liée par `@DBRef` : `roundTrips` = **20** pour vingt tortues.
+  Passez `?limit=60`, il en fait **60**. Spring Data résout chaque référence **à la lecture**.
+
+  Regardez les `_id` demandés : le même habitat est rechargé autant de fois qu'il est
+  référencé. Aucun cache, aucun regroupement.
+
+  Et surtout, `@DBRef` n'existe pas côté serveur : aucun `$lookup`, aucun filtre,
+  aucun tri ne peut porter sur l'objet lié.
+
+  **Règle** : embedding si la donnée appartient au parent ; sinon manual reference
+  (`habitatId`) ; `@DBRef` seulement sur du code existant qu'on ne peut pas changer.
+}

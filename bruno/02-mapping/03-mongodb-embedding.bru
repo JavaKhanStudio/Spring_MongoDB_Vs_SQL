@@ -1,0 +1,20 @@
+meta {
+  name: MongoDB — embedding
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/mongo/links/embedded/{{mongoId}}
+  body: none
+  auth: none
+}
+
+docs {
+  `roundTrips` = 1. Mensurations, tags et observations arrivent **avec** la tortue,
+  parce qu'ils vivent dans son document.
+
+  **Embedding quand** : la donnée est lue avec son parent, lui appartient vraiment,
+  et le tableau reste borné (quelques dizaines d'éléments, jamais « à l'infini »).
+  Rappel : un document ne peut pas dépasser **16 Mo**.
+}

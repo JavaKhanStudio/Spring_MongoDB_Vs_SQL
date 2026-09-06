@@ -1,0 +1,17 @@
+meta {
+  name: MongoDB — dériver dans un sous-document
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/mongo/turtles/longer-than/90
+  body: none
+  auth: none
+}
+
+docs {
+  `findByMeasurementsShellLengthCmGreaterThan…` → `{ "measurements.shellLengthCm": { "$gt": 90 } }`.
+
+  Le point du nom de méthode devient le point du chemin BSON.
+}

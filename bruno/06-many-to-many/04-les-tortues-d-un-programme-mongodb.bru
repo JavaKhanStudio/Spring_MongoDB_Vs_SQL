@@ -1,0 +1,32 @@
+meta {
+  name: Les tortues d'un programme — MongoDB
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/mongo/programs/Argos%20Océan%20Indien/turtles
+  body: none
+  auth: none
+}
+
+docs {
+  Les mêmes 35 tortues, en **une requête** et **aucune jointure** :
+
+  ```javascript
+  { "programs.name": "Argos Océan Indien" }
+  ```
+
+  Pourquoi c'est possible : le tableau `programs` ne contient pas que des identifiants,
+  mais des **extended references** — l'identifiant *plus* une copie du nom et de
+  l'organisme :
+
+  ```javascript
+  "programs": [
+    { "programId": ObjectId("…"), "name": "Argos Océan Indien", "organisation": "CNRS" },
+    { "programId": ObjectId("…"), "name": "Reef Watch Queensland", "organisation": "AIMS" }
+  ]
+  ```
+
+  La requête suivante montre ce que ça coûterait sans cette copie.
+}

@@ -1,0 +1,16 @@
+meta {
+  name: MongoDB — @Query en JSON brut
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/api/mongo/queries/heavy?species=Chelonia%20mydas&minWeight=100
+  body: none
+  auth: none
+}
+
+docs {
+  Le pendant exact : `@Query("{ 'species': ?0, 'measurements.weightKg': { $gte: ?1 } }")`.
+  `?0`, `?1`… sont les paramètres de la méthode, dans l'ordre.
+}

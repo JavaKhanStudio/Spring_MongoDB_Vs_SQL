@@ -1,0 +1,49 @@
+spring:
+  application:
+    name: turtles
+
+  # ---------------------------------------------------------------------
+  # Le monde DOCUMENT : MongoDB
+  # Une seule ligne de configuration : l'URI. La base est creee a la volee.
+  # ---------------------------------------------------------------------
+  data:
+    mongodb:
+      # Le conteneur MongoDB partagé de la machine exige une authentification.
+      # Tout est surchargeable par variable d'environnement, sans toucher au code :
+      #   MONGO_HOST, MONGO_PORT, MONGO_USER, MONGO_PASSWORD, MONGO_DB
+      uri: mongodb://${MONGO_USER:amiral}:${MONGO_PASSWORD:amiral}@${MONGO_HOST:localhost}:${MONGO_PORT:27017}/${MONGO_DB:turtles_demo}?authSource=admin
+      auto-index-creation: true   # cree les index declares par @Indexed au demarrage
+
+  # ---------------------------------------------------------------------
+  # Le monde RELATIONNEL : H2 en memoire
+  # Il faut une URL, un driver, un dialecte, un schema... la difference de
+  # ceremonie fait deja partie du cours.
+  # ---------------------------------------------------------------------
+  datasource:
+    url: jdbc:h2:mem:turtles;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  jpa:
+    hibernate:
+      ddl-auto: create-drop        # Mongo n'a pas d'equivalent : pas de schema a creer
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        # Intercepteur maison : capture chaque SQL reellement envoye a H2
+        session_factory:
+          statement_inspector: com.formation.turtles.trace.SqlStatementTracer
+  h2:
+    console:
+      enabled: true                # http://localhost:8080/h2-console
+
+  jackson:
+    default-property-inclusion: non_null
+
+server:
+  port: 8080
+
+logging:
+  level:
+    org.springframework.data.mongodb.core.MongoTemplate: DEBUG

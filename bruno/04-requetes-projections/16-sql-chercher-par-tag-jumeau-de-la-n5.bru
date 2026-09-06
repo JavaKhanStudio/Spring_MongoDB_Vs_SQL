@@ -1,0 +1,30 @@
+meta {
+  name: SQL — chercher par tag (jumeau de la n°5)
+  type: http
+  seq: 16
+}
+
+get {
+  url: {{baseUrl}}/api/sql/turtles/tagged/balise-argos
+  body: none
+  auth: none
+}
+
+docs {
+  Le pendant relationnel de la requête n°5 de ce dossier. Mêmes 6 tortues.
+
+  ```sql
+  select distinct t.* from turtle t
+  join turtle_tag tt on tt.turtle_id = t.id
+  where tt.tag = 'balise-argos';
+  ```
+
+  **UNE jointure** ici, **aucune** côté document (le tag est dans la tortue). Mais dans
+  les deux cas, la recherche n'est rapide que s'il existe un index sur le tag : index
+  classique sur `turtle_tag.tag`, index **multikey** sur le tableau `tags`. Le levier de
+  performance est le même des deux côtés.
+
+  Le mot-clé dérivé diffère, en revanche : `findByTagsContaining` côté JPA (traduit en
+  `member of`), `findByTags` côté MongoDB — où l'égalité sur un tableau signifie déjà
+  « contient ».
+}

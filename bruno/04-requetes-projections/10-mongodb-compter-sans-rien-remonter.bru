@@ -1,0 +1,15 @@
+meta {
+  name: MongoDB — compter sans rien remonter
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseUrl}}/api/mongo/queries/count-heavier/100
+  body: none
+  auth: none
+}
+
+docs {
+  `@Query(count = true)` : le comptage se fait côté serveur, seul un nombre traverse le réseau.
+}

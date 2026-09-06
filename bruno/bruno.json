@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "Tortues — MongoDB vs SQL",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

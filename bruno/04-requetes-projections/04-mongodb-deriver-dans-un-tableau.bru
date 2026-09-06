@@ -1,0 +1,18 @@
+meta {
+  name: MongoDB — dériver dans un tableau
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/mongo/turtles/seen-at?sites=Cairns,El%20Nido
+  body: none
+  auth: none
+}
+
+docs {
+  `findByObservationsSiteIn(...)` → `{ "observations.site": { "$in": [...] } }`.
+
+  Chercher dans un tableau de sous-documents **sans jointure** : c'est le gain concret
+  de l'embedding. Côté SQL, la même question passe par la table `observation`.
+}

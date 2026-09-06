@@ -1,0 +1,15 @@
+meta {
+  name: SQL — projection par interface
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{baseUrl}}/api/sql/projections/names
+  body: none
+  auth: none
+}
+
+docs {
+  Le `SELECT` ne remonte que les deux colonnes de l'interface.
+}

@@ -1,0 +1,18 @@
+meta {
+  name: MongoDB — $match d'abord (performance)
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/api/mongo/aggregation/filtered
+  body: none
+  auth: none
+}
+
+docs {
+  Règle de performance n°1 : placer `$match` **en tête**. Là il peut utiliser les index
+  et réduit le flux avant le `$group` ; placé après, il travaille sur tout le volume.
+
+  Même logique qu'un `WHERE` évalué avant un `HAVING`.
+}

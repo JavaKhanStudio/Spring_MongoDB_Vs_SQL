@@ -1,0 +1,15 @@
+meta {
+  name: SQL — derived query
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/sql/turtles/species/Caretta%20caretta
+  body: none
+  auth: none
+}
+
+docs {
+  `findBySpecies(String)` — la méthode n'a pas de corps, Spring Data la traduit en JPQL puis en SQL.
+}

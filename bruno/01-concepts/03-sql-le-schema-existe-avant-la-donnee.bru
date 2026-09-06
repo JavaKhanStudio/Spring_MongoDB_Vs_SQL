@@ -1,0 +1,18 @@
+meta {
+  name: SQL — le schéma existe avant la donnée
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/sql/concepts/schema
+  body: none
+  auth: none
+}
+
+docs {
+  Les tables et colonnes créées par Hibernate **au démarrage**, avant toute donnée
+  (`ddl-auto: create-drop`).
+
+  MongoDB n'a rien à créer : la collection naît au premier `insert`.
+}

@@ -1,0 +1,28 @@
+meta {
+  name: La règle, champ par champ — MongoDB
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseUrl}}/api/mongo/habitats/Grande%20Barrière%20de%20corail/turtles
+  body: none
+  auth: none
+}
+
+docs {
+  **DEUX requêtes**, et c'est instructif :
+
+  1. `{ name: "Grande Barrière de corail" }` sur `habitats` → la température ;
+  2. `{ habitatName: "Grande Barrière de corail" }` sur `turtles` → les tortues.
+
+  Pourquoi deux ? Parce que la tortue porte le **nom** de son habitat (copie
+  dénormalisée) mais **pas sa température**. Ce qu'on n'a pas copié, il faut aller le lire.
+
+  C'est la contrepartie exacte du gain montré au chapitre 6 : là-bas, la copie de
+  l'organisme faisait tomber une requête ; ici, l'absence de copie en ajoute une.
+
+  **Le compromis n'a pas de camp gagnant** — il a un sens de lecture. On paie soit à
+  l'écriture (propager les copies), soit à la lecture (aller chercher ce qu'on n'a pas
+  copié). Modéliser, c'est choisir de quel côté payer.
+}

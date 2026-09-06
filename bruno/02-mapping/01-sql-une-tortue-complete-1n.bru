@@ -1,0 +1,16 @@
+meta {
+  name: SQL — une tortue complète (1+N)
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/sql/turtles/{{sqlId}}
+  body: none
+  auth: none
+}
+
+docs {
+  `findById()` puis, dès que la vue touche les collections en lazy loading, **un SELECT de plus
+  par association**. Regardez `roundTrips` : 4.
+}

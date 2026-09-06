@@ -1,0 +1,16 @@
+meta {
+  name: Template $set — n'envoie que le changement
+  type: http
+  seq: 5
+}
+
+patch {
+  url: {{baseUrl}}/api/mongo/template/{{mongoId}}/weight?weightKg=140
+  body: none
+  auth: none
+}
+
+docs {
+  La même intention, en un `$set`, sans lecture préalable. Comparez la taille de la
+  commande avec celle de la requête précédente.
+}

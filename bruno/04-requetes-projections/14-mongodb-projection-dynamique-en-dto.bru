@@ -1,0 +1,16 @@
+meta {
+  name: MongoDB — projection dynamique en DTO
+  type: http
+  seq: 14
+}
+
+get {
+  url: {{baseUrl}}/api/mongo/projections/dynamic?habitat=Baie%20de%20Palawan
+  body: none
+  auth: none
+}
+
+docs {
+  Une seule méthode de repository — `<T> List<T> findByHabitatName(String, Class<T>)` —
+  et c'est l'appelant qui choisit la forme : record, interface, ou entité complète.
+}

@@ -1,0 +1,24 @@
+meta {
+  name: SQL — les index créés
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/api/sql/concepts/indexes
+  body: none
+  auth: none
+}
+
+docs {
+  Les index du schéma relationnel. Trois familles :
+
+  * ceux des **clés** : PK de chaque table, plus un index par clé étrangère ;
+  * la **PK composite** de `turtle_program` — `(program_id, turtle_id)` : la signature
+    d'une vraie table de jointure ;
+  * celui déclaré **à la main** sur `turtle_tag.tag`, sans lequel « toutes les tortues
+    baguées Argos » balaierait toute la table.
+
+  Comparez avec la requête suivante : `turtle_tag` n'a **pas** de PK, seulement deux
+  index — encore un signe que ce n'est pas une table de jointure.
+}

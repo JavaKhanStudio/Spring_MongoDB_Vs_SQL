@@ -1,0 +1,17 @@
+meta {
+  name: MongoDB — pas de schéma imposé
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/api/mongo/concepts/sample?limit=3
+  body: none
+  auth: none
+}
+
+docs {
+  Trois documents bruts. Rien n'oblige deux documents d'une même collection à avoir
+  les mêmes champs : c'est l'application (et éventuellement un validateur JSON Schema)
+  qui garantit la cohérence, pas le moteur.
+}

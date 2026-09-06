@@ -1,0 +1,27 @@
+meta {
+  name: Inscrire une tortue — SQL
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{baseUrl}}/api/sql/programs/enrol?turtleId={{sqlId}}&program=Golfo%20Azul
+  body: none
+  auth: none
+}
+
+docs {
+  Regardez la dernière requête de la trace :
+
+  ```sql
+  insert into turtle_program (turtle_id, program_id) values (?, ?)
+  ```
+
+  Ni la tortue ni le programme ne sont modifiés — **c'est la table de jointure qui porte
+  la relation**. Et la clé primaire composite empêche d'inscrire deux fois la même tortue
+  au même programme.
+
+  (Le code appelle `saveAndFlush` et non `save` : Hibernate ne vide sa session qu'au
+  commit, donc après la construction de la réponse — sans flush explicite, l'INSERT
+  n'apparaîtrait pas dans la trace.)
+}

@@ -1,0 +1,18 @@
+meta {
+  name: MongoDB — $bucket (histogramme)
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/api/mongo/aggregation/buckets
+  body: none
+  auth: none
+}
+
+docs {
+  Répartition des tortues par tranche de poids, en une étape. En SQL, il faudrait un
+  `CASE WHEN` imbriqué dans un `GROUP BY`.
+
+  `$push` accumule au passage les noms de chaque tranche.
+}

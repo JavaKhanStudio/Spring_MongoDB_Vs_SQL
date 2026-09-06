@@ -1,0 +1,32 @@
+meta {
+  name: Inscrire une tortue — MongoDB
+  type: http
+  seq: 13
+}
+
+post {
+  url: {{baseUrl}}/api/mongo/programs/enrol?turtleId={{mongoId}}&program=Golfo%20Azul
+  body: none
+  auth: none
+}
+
+docs {
+  ```javascript
+  { $addToSet: { programs: {
+      programId: ObjectId("…"), name: "Golfo Azul", organisation: "WWF México" } } }
+  ```
+
+  Un seul document modifié, celui qui porte la relation — mais on y écrit une **copie**
+  des libellés, qu'il faudra maintenir (voir n°11). `$addToSet` joue le rôle de la clé
+  primaire composite : pas de doublon possible.
+
+  **Ce qui manque par rapport au monde relationnel :**
+
+  * rien ne garantit que l'`ObjectId` inséré corresponde à un programme existant — il
+    n'y a pas de clé étrangère ;
+  * supprimer un programme ne nettoie rien : il faut un `$pull` sur toutes les tortues,
+    là où le SQL avait `ON DELETE CASCADE`.
+
+  C'est le fond du chapitre : le modèle document supprime la table de jointure, et
+  transfère à l'application ce que la contrainte garantissait.
+}

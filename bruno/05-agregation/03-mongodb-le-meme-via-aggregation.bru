@@ -1,0 +1,17 @@
+meta {
+  name: MongoDB — le même, via @Aggregation
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/mongo/stats/species
+  body: none
+  auth: none
+}
+
+docs {
+  Le pipeline peut aussi vivre **sur la méthode du repository**, en annotation.
+  Pratique quand il est figé ; le `MongoTemplate` reste nécessaire dès qu'il doit
+  être construit à l'exécution.
+}

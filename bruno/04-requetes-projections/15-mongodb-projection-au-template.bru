@@ -1,0 +1,16 @@
+meta {
+  name: MongoDB — projection au Template
+  type: http
+  seq: 15
+}
+
+get {
+  url: {{baseUrl}}/api/mongo/template/projection
+  body: none
+  auth: none
+}
+
+docs {
+  `query.fields().include("name").include("species").exclude("_id")` : même mécanisme,
+  mais décidé à l'exécution.
+}

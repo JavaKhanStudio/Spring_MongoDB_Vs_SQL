@@ -1,0 +1,19 @@
+meta {
+  name: MongoDB — le piège de @Query et @Field
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/api/mongo/queries/born-before/2005
+  body: none
+  auth: none
+}
+
+docs {
+  ⚠️ Dans un `@Query`, on écrit le nom **stocké** (`annee_naissance`), pas le nom Java
+  (`birthYear`) : le JSON part tel quel vers le serveur, Spring Data ne le traduit pas.
+
+  La derived query, elle, parle Java. C'est la principale source d'erreurs quand on
+  renomme un champ avec `@Field`.
+}

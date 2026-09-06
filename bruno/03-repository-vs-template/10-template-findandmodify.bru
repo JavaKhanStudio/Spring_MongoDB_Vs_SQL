@@ -1,0 +1,31 @@
+meta {
+  name: Template findAndModify
+  type: http
+  seq: 10
+}
+
+patch {
+  url: {{baseUrl}}/api/mongo/template/{{mongoId}}/rename?newName=Crush%20II
+  body: none
+  auth: none
+}
+
+docs {
+  Modifie **et** renvoie le document dans la même opération atomique
+  (`returnNew(true)` pour obtenir la version d'après).
+
+  ---
+  ## Récapitulatif
+
+  | Besoin | Repository | Template |
+  |---|---|---|
+  | CRUD, requêtes connues d'avance | ✅ | — |
+  | Pagination, tri simples | ✅ | ✅ |
+  | Critères assemblés à l'exécution | ❌ | ✅ |
+  | Modifier un seul champ (`$set`, `$inc`, `$push`) | ❌ | ✅ |
+  | Upsert, findAndModify, bulk | ❌ | ✅ |
+  | Pipeline d'agrégation | `@Aggregation` (figé) | ✅ (dynamique) |
+
+  Les deux partagent la même connexion et le même convertisseur : on les mélange
+  sans arrière-pensée, souvent dans le même service.
+}

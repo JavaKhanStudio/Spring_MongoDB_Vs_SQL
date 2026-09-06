@@ -1,0 +1,28 @@
+meta {
+  name: Sommaire des paires d'endpoints
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/
+  body: none
+  auth: none
+}
+
+docs {
+  # Comment lire cette collection
+
+  Les requêtes vont **par paires** : la même question posée au monde SQL, puis au monde
+  document. Dans chaque réponse, regardez toujours dans cet ordre :
+
+  | champ | ce qu'il raconte |
+  |---|---|
+  | `demo` | ce que l'appel illustre |
+  | `layer` | l'étage traversé : repository dérivé, `@Query`, Template, pipeline… |
+  | `roundTrips` | **le nombre d'allers-retours réels avec la base** |
+  | `queries` | la ou les requêtes générées (SQL ou BSON) |
+  | `result` | la donnée, identique des deux côtés |
+
+  C'est `roundTrips` + `queries` qui portent tout le cours : le résultat, lui, est le même.
+}

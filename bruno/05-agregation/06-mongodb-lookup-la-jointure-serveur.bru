@@ -1,0 +1,23 @@
+meta {
+  name: MongoDB — $lookup, la jointure serveur
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/api/mongo/aggregation/habitats
+  body: none
+  auth: none
+}
+
+docs {
+  `$lookup` joint `turtles` et `habitats` **côté serveur** — c'est exactement ce que
+  `@DBRef` ne permet pas.
+
+  Elle fonctionne ici parce que `habitatId` est stocké en `ObjectId` : une référence
+  stockée en chaîne de caractères ne matcherait jamais un `_id`. Piège classique.
+
+  Remarquez que Goliath (« Océan ouvert », sans habitat connu) disparaît du résultat :
+  l'`$unwind` qui suit le `$lookup` élimine les tableaux vides — l'équivalent d'un
+  INNER JOIN.
+}

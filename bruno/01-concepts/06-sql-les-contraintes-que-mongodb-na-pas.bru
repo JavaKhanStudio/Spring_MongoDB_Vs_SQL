@@ -1,0 +1,37 @@
+meta {
+  name: SQL — les contraintes que MongoDB n'a pas
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/api/sql/concepts/constraints
+  body: none
+  auth: none
+}
+
+docs {
+  Les clés primaires, étrangères et contraintes d'unicité réellement créées par Hibernate.
+
+  ```
+  TURTLE_TAG    FOREIGN KEY  (TURTLE_ID)          ← une seule FK, et aucune PK
+  OBSERVATION   FOREIGN KEY  (TURTLE_ID)   +  PRIMARY KEY (ID)
+  TURTLE        FOREIGN KEY  (HABITAT_ID)  +  PRIMARY KEY (ID)
+  HABITAT       PRIMARY KEY  (ID)          +  UNIQUE (NAME)
+  ```
+
+  **Deux points à relever avec les étudiants.**
+
+  1. `turtle_tag` n'est **pas** une table de jointure, malgré son allure. Un *many-to-many*
+     porterait **deux** clés étrangères (`turtle_id` + `tag_id`) et supposerait une table
+     `tag` avec sa propre clé primaire. Ici la colonne `tag` contient la **valeur**
+     elle-même : c'est le motif `@ElementCollection`, une collection de valeurs qui
+     appartient à la tortue — l'analogue exact du tableau `tags` du document MongoDB.
+     La chaîne « balise-argos » y est donc dupliquée dans chaque ligne, comme dans chaque
+     document.
+
+  2. MongoDB n'a **aucun équivalent** de cette liste. Le moteur y garantit l'unicité d'un
+     index (`@Indexed(unique = true)` sur `habitats.name`), mais jamais l'intégrité
+     référentielle entre deux collections : rien n'empêche un `habitatId` de pointer vers
+     un habitat supprimé. C'est à l'application de s'en charger.
+}

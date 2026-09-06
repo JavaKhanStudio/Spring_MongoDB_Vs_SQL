@@ -1,0 +1,15 @@
+meta {
+  name: Template updateMulti — toute une espèce
+  type: http
+  seq: 8
+}
+
+patch {
+  url: {{baseUrl}}/api/mongo/template/tag?species=Chelonia%20mydas&tag=cours
+  body: none
+  auth: none
+}
+
+docs {
+  `$addToSet` + `updateMulti` : quatre documents modifiés en **une** commande, sans les lire.
+}

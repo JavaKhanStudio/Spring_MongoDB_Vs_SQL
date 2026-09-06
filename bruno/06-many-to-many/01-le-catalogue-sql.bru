@@ -1,0 +1,32 @@
+meta {
+  name: Le catalogue — SQL
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/sql/programs
+  body: none
+  auth: none
+}
+
+docs {
+  # La seule vraie table de jointure du projet
+
+  Une tortue suit plusieurs programmes de recherche, un programme suit plusieurs
+  tortues. C'est ici — et **seulement** ici — qu'apparaît une table de jointure :
+
+  ```
+  TURTLE_PROGRAM   turtle_id  BIGINT  FK → turtle.id
+                   program_id BIGINT  FK → program.id
+                   PRIMARY KEY (program_id, turtle_id)
+  ```
+
+  **Deux** clés étrangères, une clé primaire composite, aucune colonne de données.
+  À comparer avec `turtle_tag`, qui n'a qu'une FK et aucune PK : celle-là est une
+  collection de valeurs, pas une relation.
+
+  Pourquoi un programme mérite une entité là où un tag n'en a pas besoin : il a ses
+  propres attributs (organisme, année de lancement), et il **existe même sans tortue
+  inscrite**. Le `left join` de cette requête est là pour ça.
+}

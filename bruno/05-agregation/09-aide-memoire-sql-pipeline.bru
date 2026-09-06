@@ -1,0 +1,25 @@
+meta {
+  name: Aide-mémoire SQL → pipeline
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseUrl}}/api/mongo/aggregation/cheatsheet
+  body: none
+  auth: none
+}
+
+docs {
+  | Étape | Équivalent SQL |
+  |---|---|
+  | `$match` | `WHERE` |
+  | `$project` | `SELECT` (choisir, renommer, calculer) |
+  | `$group` | `GROUP BY` (+ `$sum`, `$avg`, `$min`, `$max`, `$push`) |
+  | `$sort` | `ORDER BY` |
+  | `$limit` / `$skip` | `LIMIT` / `OFFSET` |
+  | `$lookup` | `LEFT JOIN` |
+  | `$unwind` | *(aucun)* — déplier un tableau |
+  | `$bucket` | `CASE WHEN` + `GROUP BY` |
+  | `$out` / `$merge` | `CREATE TABLE AS SELECT` |
+}

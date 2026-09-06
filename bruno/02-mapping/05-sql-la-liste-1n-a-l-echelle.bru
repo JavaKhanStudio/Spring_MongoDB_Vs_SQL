@@ -1,0 +1,16 @@
+meta {
+  name: SQL — la liste, le 1+N à l'échelle
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/api/sql/turtles?limit=20
+  body: none
+  auth: none
+}
+
+docs {
+  **49 requêtes pour vingt tortues.** Ajoutez `?limit=50` : 113. `?limit=121` : **255**.
+  Le coût est linéaire — c'est le « 1 + N », en vrai et à l'échelle.
+}

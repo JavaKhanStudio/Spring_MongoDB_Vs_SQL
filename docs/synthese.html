@@ -1,0 +1,1597 @@
+<title>Spring Data côté tortues</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,500;0,600;1,400&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+  :root {
+    --ground:      #eef3f1;
+    --surface:     #fbfdfc;
+    --surface-alt: #e7eeeb;
+    --ink:         #0f221e;
+    --ink-soft:    #4c635c;
+    --ink-faint:   #7d938c;
+    --rule:        #d0dcd7;
+    --rule-soft:   #e0e9e5;
+    --sql:         #2c5a86;
+    --sql-wash:    #e6edf4;
+    --mongo:       #1c7355;
+    --mongo-wash:  #e2efe9;
+    --signal:      #b64d28;
+    --signal-wash: #f7e9e2;
+
+    --display: "Spectral", "Iowan Old Style", Georgia, serif;
+    --body: "Public Sans", "Helvetica Neue", Arial, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+    --measure: 68ch;
+    --step--1: 0.8125rem;
+    --step-0:  1rem;
+    --step-1:  1.1875rem;
+    --step-2:  1.5rem;
+    --step-3:  2rem;
+    --step-4:  2.75rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:      #0b1512;
+      --surface:     #111e1a;
+      --surface-alt: #16261f;
+      --ink:         #e4ede8;
+      --ink-soft:    #a3b7af;
+      --ink-faint:   #7a8f88;
+      --rule:        #26382f;
+      --rule-soft:   #1c2b25;
+      --sql:         #83b0dc;
+      --sql-wash:    #14232f;
+      --mongo:       #58c79a;
+      --mongo-wash:  #102a21;
+      --signal:      #e2865e;
+      --signal-wash: #2c1a13;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground:      #0b1512;
+    --surface:     #111e1a;
+    --surface-alt: #16261f;
+    --ink:         #e4ede8;
+    --ink-soft:    #a3b7af;
+    --ink-faint:   #7a8f88;
+    --rule:        #26382f;
+    --rule-soft:   #1c2b25;
+    --sql:         #83b0dc;
+    --sql-wash:    #14232f;
+    --mongo:       #58c79a;
+    --mongo-wash:  #102a21;
+    --signal:      #e2865e;
+    --signal-wash: #2c1a13;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: var(--step-0);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--mongo); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:focus-visible, summary:focus-visible { outline: 2px solid var(--signal); outline-offset: 3px; border-radius: 2px; }
+
+  /* ---------- charpente ---------- */
+
+  .shell {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 clamp(1rem, 4vw, 3rem) 6rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0 3.5rem;
+  }
+
+  @media (min-width: 1000px) {
+    .shell { grid-template-columns: 13rem minmax(0, 1fr); }
+    .masthead { grid-column: 1 / -1; }
+    .rail { grid-column: 1; }
+    .flow { grid-column: 2; }
+  }
+
+  /* ---------- en-tête ---------- */
+
+  .masthead {
+    padding: clamp(3rem, 7vw, 5.5rem) 0 2.5rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: var(--step--1);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0 0 1.25rem;
+  }
+
+  .masthead h1 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: clamp(2.25rem, 6vw, var(--step-4));
+    line-height: 1.08;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+    margin: 0 0 1rem;
+    max-width: 20ch;
+  }
+
+  .masthead h1 em { font-style: italic; color: var(--mongo); }
+
+  .lede {
+    max-width: var(--measure);
+    font-size: var(--step-1);
+    color: var(--ink-soft);
+    margin: 0;
+  }
+
+  /* ---------- rail latéral ---------- */
+
+  .rail { padding-top: 3rem; }
+
+  @media (min-width: 1000px) {
+    .rail nav { position: sticky; top: 2rem; }
+  }
+
+  .rail ol {
+    list-style: none;
+    margin: 0 0 2rem;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    border-left: 1px solid var(--rule);
+  }
+
+  .rail li { padding-left: 1rem; }
+
+  .rail a {
+    display: block;
+    font-size: var(--step--1);
+    line-height: 1.35;
+    color: var(--ink-soft);
+    text-decoration: none;
+  }
+
+  .rail a:hover { color: var(--ink); }
+
+  .rail .num {
+    display: block;
+    font-family: var(--mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint);
+  }
+
+  .rail .aside {
+    font-size: var(--step--1);
+    color: var(--ink-faint);
+    line-height: 1.5;
+    padding-left: 1rem;
+    border-left: 1px solid var(--rule);
+  }
+
+  /* ---------- flux principal ---------- */
+
+  .flow { padding-top: 3rem; display: flex; flex-direction: column; gap: 4.5rem; }
+
+  section { scroll-margin-top: 2rem; }
+
+  h2 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: var(--step-3);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+    margin: 0 0 0.5rem;
+  }
+
+  h2 .chapter {
+    display: block;
+    font-family: var(--mono);
+    font-size: var(--step--1);
+    font-weight: 400;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--signal);
+    margin-bottom: 0.6rem;
+  }
+
+  h3 {
+    font-family: var(--body);
+    font-size: var(--step-1);
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    margin: 2.5rem 0 0.75rem;
+  }
+
+  p { max-width: var(--measure); margin: 0 0 1rem; }
+  .flow > section > p:last-child { margin-bottom: 0; }
+
+  strong { font-weight: 600; }
+
+  code {
+    font-family: var(--mono);
+    font-size: 0.875em;
+    background: var(--surface-alt);
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+  }
+
+  /* ---------- tableaux ---------- */
+
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    background: var(--surface);
+    margin: 1.5rem 0;
+  }
+
+  table { border-collapse: collapse; width: 100%; font-size: var(--step--1); }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.9rem;
+    border-bottom: 1px solid var(--rule-soft);
+    vertical-align: top;
+  }
+
+  tbody tr:last-child td { border-bottom: 0; }
+
+  thead th {
+    font-family: var(--mono);
+    font-weight: 500;
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    border-bottom: 1px solid var(--rule);
+    white-space: nowrap;
+  }
+
+  th[scope="row"] { font-weight: 500; color: var(--ink); }
+
+  .col-sql   { color: var(--sql); background: var(--sql-wash); }
+  .col-mongo { color: var(--mongo); background: var(--mongo-wash); }
+  td.mono, th.mono { font-family: var(--mono); font-size: 0.8125rem; }
+  td.num { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+  .yes { color: var(--mongo); font-weight: 600; }
+  .no  { color: var(--ink-faint); }
+
+  /* ---------- diptyque code ---------- */
+
+  .split {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  @media (min-width: 700px) { .split { grid-template-columns: 1fr 1fr; } }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-top: 3px solid var(--rule);
+    border-radius: 4px;
+    padding: 1rem 1.1rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    min-width: 0;
+  }
+
+  .panel--sql   { border-top-color: var(--sql); }
+  .panel--mongo { border-top-color: var(--mongo); }
+
+  .panel h4 {
+    font-family: var(--mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin: 0;
+  }
+
+  .panel--sql h4   { color: var(--sql); }
+  .panel--mongo h4 { color: var(--mongo); }
+
+  .panel p { font-size: var(--step--1); color: var(--ink-soft); margin: 0; max-width: none; }
+
+  pre {
+    margin: 0;
+    padding: 0.85rem 0.95rem;
+    background: var(--surface-alt);
+    border-radius: 3px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 0.8125rem;
+    line-height: 1.55;
+  }
+
+  pre code { background: none; padding: 0; font-size: inherit; }
+
+  .flow > section > pre { margin: 1.25rem 0; border: 1px solid var(--rule); }
+
+  /* ---------- compteur d'allers-retours ---------- */
+
+  .meter {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    font-family: var(--mono);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+    margin-top: auto;
+  }
+
+  .meter b {
+    font-family: var(--display);
+    font-size: var(--step-2);
+    font-weight: 600;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .panel--sql .meter b   { color: var(--sql); }
+  .panel--mongo .meter b { color: var(--mongo); }
+
+  .gauges {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+  }
+
+  .gauge { background: var(--surface); padding: 1rem 1.1rem; }
+
+  .gauge dt {
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+    margin-bottom: 0.6rem;
+    line-height: 1.4;
+  }
+
+  .gauge dd {
+    margin: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 0.55rem;
+    font-family: var(--mono);
+    font-size: var(--step--1);
+    color: var(--ink-faint);
+  }
+
+  .gauge .v {
+    font-family: var(--display);
+    font-size: var(--step-2);
+    font-weight: 600;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .v--sql   { color: var(--sql); }
+  .v--mongo { color: var(--mongo); }
+
+  /* ---------- encadrés ---------- */
+
+  .callout {
+    border-left: 3px solid var(--signal);
+    background: var(--signal-wash);
+    padding: 1rem 1.2rem;
+    border-radius: 0 4px 4px 0;
+    margin: 1.5rem 0;
+  }
+
+  .callout p { margin: 0; max-width: none; }
+  .callout p + p { margin-top: 0.6rem; }
+
+  .callout .tag {
+    display: block;
+    font-family: var(--mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--signal);
+    margin-bottom: 0.4rem;
+  }
+
+  .rule-of-thumb {
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding: 1.4rem 0;
+    margin: 2rem 0 0;
+    font-family: var(--display);
+    font-size: var(--step-1);
+    line-height: 1.5;
+    color: var(--ink);
+    max-width: var(--measure);
+  }
+
+  .rule-of-thumb::before {
+    content: "À retenir";
+    display: block;
+    font-family: var(--mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 0.5rem;
+  }
+
+  /* ---------- figures ---------- */
+
+  figure {
+    margin: 2rem 0;
+    padding: 1.4rem 1.2rem 1rem;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+  }
+
+  figure .scroller { overflow-x: auto; }
+
+  figure svg { display: block; width: 100%; max-width: 100%; height: auto; color: var(--ink-soft); }
+
+  figcaption {
+    margin-top: 1rem;
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--rule-soft);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+    max-width: var(--measure);
+  }
+
+  .svg-title { font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; }
+  .svg-label { font-family: "Public Sans", sans-serif; font-size: 13px; }
+  .svg-small { font-family: "IBM Plex Mono", monospace; font-size: 11px; }
+  .box { fill: none; stroke: currentColor; stroke-width: 1; }
+  .box-sql { fill: var(--sql-wash); stroke: var(--sql); stroke-width: 1; }
+  .box-mongo { fill: var(--mongo-wash); stroke: var(--mongo); stroke-width: 1; }
+  .link { stroke: currentColor; stroke-width: 1; fill: none; }
+  /* utilitaires de teinte : declares apres .link / .box pour gagner la cascade */
+  .fill-ink { fill: currentColor; }
+  .fill-sql { fill: var(--sql); }
+  .fill-mongo { fill: var(--mongo); }
+  .fill-signal { fill: var(--signal); }
+  .stroke-sql { stroke: var(--sql); }
+  .stroke-mongo { stroke: var(--mongo); }
+  .stroke-signal { stroke: var(--signal); }
+
+  /* ---------- pied ---------- */
+
+  .colophon {
+    margin-top: 1rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--rule);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+
+  .colophon pre { border: 1px solid var(--rule); margin: 1rem 0; }
+</style>
+
+<div class="shell">
+
+  <header class="masthead">
+    <p class="eyebrow">Fiche de synthèse · Spring Data</p>
+    <h1>Le même métier, rangé de <em>deux façons</em></h1>
+    <p class="lede">
+      121 tortues marines, leurs mensurations, leurs 696 observations de terrain, leur habitat
+      et leurs programmes de recherche. À gauche six tables et 1&nbsp;296 lignes, à droite trois
+      collections et 141 documents. Les réponses sont identiques&nbsp;; ce qui change, c'est le
+      nombre d'allers-retours avec la base — et c'est tout le sujet du cours.
+    </p>
+  </header>
+
+  <aside class="rail">
+    <nav aria-label="Chapitres">
+      <ol>
+        <li><a href="#schema"><span class="num">Repère</span>Les deux schémas</a></li>
+        <li><a href="#concepts"><span class="num">Chapitre 1</span>Concepts et équivalents</a></li>
+        <li><a href="#mapping"><span class="num">Chapitre 2</span>Mapping objet-document</a></li>
+        <li><a href="#outils"><span class="num">Chapitre 3</span>Repository ou Template</a></li>
+        <li><a href="#requetes"><span class="num">Chapitre 4</span>Requêtes et projections</a></li>
+        <li><a href="#pipeline"><span class="num">Chapitre 5</span>Pipeline d'agrégation</a></li>
+      </ol>
+      <p class="aside">
+        Tous les chiffres de cette page sont <strong>mesurés</strong> sur le projet
+        <code>turtles</code>, dont chaque réponse REST contient les requêtes réellement
+        envoyées à la base.
+      </p>
+    </nav>
+  </aside>
+
+  <main class="flow">
+
+    <!-- ============================== schéma ============================== -->
+    <section id="schema">
+      <h2><span class="chapter">Repère</span>Les deux schémas, en vis-à-vis</h2>
+
+      <p>
+        Le même domaine&nbsp;: une tortue, ses mensurations, ses observations de terrain, ses
+        tags, son habitat, ses programmes de recherche. À gauche il devient <strong>six tables
+        et 1&nbsp;296&nbsp;lignes</strong>&nbsp;; à droite, <strong>trois collections et 141
+        documents</strong>. Le domaine couvre exprès les cinq formes de relation, pour que
+        chacune ait son vis-à-vis document.
+      </p>
+
+      <figure>
+        <div class="scroller">
+          <svg viewBox="0 0 740 560" role="img"
+               aria-label="Schéma relationnel en six tables : turtle référence habitat, reçoit les clés étrangères de turtle_tag et observation, et rejoint program par la table de jointure turtle_program qui porte deux clés étrangères.">
+            <defs>
+              <marker id="erdArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" class="fill-sql"/>
+              </marker>
+            </defs>
+
+            <text x="30" y="12" class="svg-title fill-sql">Monde relationnel · H2 · 6 tables, 1 296 lignes</text>
+
+            <rect x="30" y="20" width="250" height="119" rx="3" class="box"/>
+            <rect x="30" y="20" width="250" height="26" rx="3" class="box-sql"/>
+            <text x="44" y="38" class="svg-small fill-sql">habitat · 12 lignes</text>
+            <text x="44" y="63" class="svg-small fill-ink">id</text><text x="170" y="63" class="svg-small fill-ink" opacity="0.75">BIGINT</text><text x="266" y="63" text-anchor="end" class="svg-small fill-sql">PK</text>
+            <text x="44" y="80" class="svg-small fill-ink">name</text><text x="170" y="80" class="svg-small fill-ink" opacity="0.75">VARCHAR</text><text x="266" y="80" text-anchor="end" class="svg-small fill-ink" opacity="0.6">unique</text>
+            <text x="44" y="97" class="svg-small fill-ink">ocean</text><text x="170" y="97" class="svg-small fill-ink" opacity="0.75">VARCHAR</text>
+            <text x="44" y="114" class="svg-small fill-ink">water_temp_c</text><text x="170" y="114" class="svg-small fill-ink" opacity="0.75">DOUBLE</text>
+            <text x="44" y="131" class="svg-small fill-ink">protected_area</text><text x="170" y="131" class="svg-small fill-ink" opacity="0.75">BOOLEAN</text>
+
+            <rect x="31" y="296" width="248" height="36" class="fill-signal" opacity="0.09"/>
+            <rect x="30" y="180" width="250" height="170" rx="3" class="box"/>
+            <rect x="30" y="180" width="250" height="26" rx="3" class="box-sql"/>
+            <text x="44" y="198" class="svg-small fill-sql">turtle · 121 lignes</text>
+            <text x="44" y="223" class="svg-small fill-ink">id</text><text x="170" y="223" class="svg-small fill-ink" opacity="0.75">BIGINT</text><text x="266" y="223" text-anchor="end" class="svg-small fill-sql">PK</text>
+            <text x="44" y="240" class="svg-small fill-ink">name</text><text x="170" y="240" class="svg-small fill-ink" opacity="0.75">VARCHAR</text>
+            <text x="44" y="257" class="svg-small fill-ink">species</text><text x="170" y="257" class="svg-small fill-ink" opacity="0.75">VARCHAR</text>
+            <text x="44" y="274" class="svg-small fill-ink">sex</text><text x="170" y="274" class="svg-small fill-ink" opacity="0.75">VARCHAR</text>
+            <text x="44" y="291" class="svg-small fill-ink">birth_year</text><text x="170" y="291" class="svg-small fill-ink" opacity="0.75">INTEGER</text>
+            <text x="44" y="308" class="svg-small fill-ink">shell_length_cm</text><text x="170" y="308" class="svg-small fill-ink" opacity="0.75">DOUBLE</text>
+            <text x="44" y="325" class="svg-small fill-ink">weight_kg</text><text x="170" y="325" class="svg-small fill-ink" opacity="0.75">DOUBLE</text>
+            <text x="44" y="342" class="svg-small fill-ink">habitat_id</text><text x="170" y="342" class="svg-small fill-ink" opacity="0.75">BIGINT</text><text x="266" y="342" text-anchor="end" class="svg-small fill-sql">FK</text>
+
+            <rect x="430" y="20" width="280" height="68" rx="3" class="box"/>
+            <rect x="430" y="20" width="280" height="26" rx="3" class="box-sql"/>
+            <text x="444" y="38" class="svg-small fill-sql">turtle_tag · 265 lignes</text>
+            <text x="444" y="63" class="svg-small fill-ink">turtle_id</text><text x="570" y="63" class="svg-small fill-ink" opacity="0.75">BIGINT</text><text x="696" y="63" text-anchor="end" class="svg-small fill-sql">FK</text>
+            <text x="444" y="80" class="svg-small fill-ink">tag</text><text x="570" y="80" class="svg-small fill-ink" opacity="0.75">VARCHAR</text><text x="696" y="80" text-anchor="end" class="svg-small fill-ink" opacity="0.6">la valeur</text>
+
+            <rect x="430" y="180" width="280" height="136" rx="3" class="box"/>
+            <rect x="430" y="180" width="280" height="26" rx="3" class="box-sql"/>
+            <text x="444" y="198" class="svg-small fill-sql">observation · 696 lignes</text>
+            <text x="444" y="223" class="svg-small fill-ink">id</text><text x="570" y="223" class="svg-small fill-ink" opacity="0.75">BIGINT</text><text x="696" y="223" text-anchor="end" class="svg-small fill-sql">PK</text>
+            <text x="444" y="240" class="svg-small fill-ink">turtle_id</text><text x="570" y="240" class="svg-small fill-ink" opacity="0.75">BIGINT</text><text x="696" y="240" text-anchor="end" class="svg-small fill-sql">FK</text>
+            <text x="444" y="257" class="svg-small fill-ink">observed_on</text><text x="570" y="257" class="svg-small fill-ink" opacity="0.75">DATE</text>
+            <text x="444" y="274" class="svg-small fill-ink">site</text><text x="570" y="274" class="svg-small fill-ink" opacity="0.75">VARCHAR</text>
+            <text x="444" y="291" class="svg-small fill-ink">observer</text><text x="570" y="291" class="svg-small fill-ink" opacity="0.75">VARCHAR</text>
+            <text x="444" y="308" class="svg-small fill-ink">health_score</text><text x="570" y="308" class="svg-small fill-ink" opacity="0.75">INTEGER</text>
+
+            <rect x="30" y="400" width="250" height="68" rx="3" class="box"/>
+            <rect x="30" y="400" width="250" height="26" rx="3" class="box-sql"/>
+            <text x="44" y="418" class="svg-small fill-sql">turtle_program · 194 lignes</text>
+            <text x="44" y="443" class="svg-small fill-ink">turtle_id</text><text x="170" y="443" class="svg-small fill-ink" opacity="0.75">BIGINT</text><text x="266" y="443" text-anchor="end" class="svg-small fill-sql">FK</text>
+            <text x="44" y="460" class="svg-small fill-ink">program_id</text><text x="170" y="460" class="svg-small fill-ink" opacity="0.75">BIGINT</text><text x="266" y="460" text-anchor="end" class="svg-small fill-sql">FK</text>
+
+            <rect x="430" y="400" width="280" height="136" rx="3" class="box"/>
+            <rect x="430" y="400" width="280" height="26" rx="3" class="box-sql"/>
+            <text x="444" y="418" class="svg-small fill-sql">program · 8 lignes, 15 colonnes</text>
+            <text x="444" y="443" class="svg-small fill-ink">id</text><text x="570" y="443" class="svg-small fill-ink" opacity="0.75">BIGINT</text><text x="696" y="443" text-anchor="end" class="svg-small fill-sql">PK</text>
+            <text x="444" y="460" class="svg-small fill-ink">name</text><text x="570" y="460" class="svg-small fill-ink" opacity="0.75">VARCHAR</text><text x="696" y="460" text-anchor="end" class="svg-small fill-ink" opacity="0.6">unique</text>
+            <text x="444" y="477" class="svg-small fill-ink">acronym</text><text x="570" y="477" class="svg-small fill-ink" opacity="0.75">VARCHAR</text>
+            <text x="444" y="494" class="svg-small fill-ink">organisation</text><text x="570" y="494" class="svg-small fill-ink" opacity="0.75">VARCHAR</text>
+            <text x="444" y="511" class="svg-small fill-ink">description</text><text x="570" y="511" class="svg-small fill-ink" opacity="0.75">VARCHAR(1000)</text>
+            <text x="444" y="528" class="svg-small fill-ink">+ 10 autres colonnes</text><text x="696" y="528" text-anchor="end" class="svg-small fill-ink" opacity="0.6">dont le protocole</text>
+
+            <line x1="155" y1="139" x2="155" y2="176" class="link stroke-sql" marker-end="url(#erdArrow)"/>
+            <text x="149" y="152" text-anchor="end" class="svg-small fill-sql">1</text>
+            <text x="149" y="172" text-anchor="end" class="svg-small fill-sql">N</text>
+            <text x="163" y="163" class="svg-small fill-sql">habitat_id</text>
+
+            <polyline points="280,222 355,222 355,54 426,54" class="link stroke-sql" marker-end="url(#erdArrow)"/>
+            <text x="286" y="216" class="svg-small fill-sql">1</text>
+            <text x="296" y="216" class="svg-small fill-sql">turtle_id</text>
+            <text x="416" y="46" text-anchor="end" class="svg-small fill-sql">N</text>
+
+            <polyline points="280,290 355,290 355,248 426,248" class="link stroke-sql" marker-end="url(#erdArrow)"/>
+            <text x="286" y="284" class="svg-small fill-sql">1</text>
+            <text x="296" y="284" class="svg-small fill-sql">turtle_id</text>
+            <text x="416" y="240" text-anchor="end" class="svg-small fill-sql">N</text>
+
+            <line x1="155" y1="350" x2="155" y2="396" class="link stroke-sql" marker-end="url(#erdArrow)"/>
+            <text x="149" y="364" text-anchor="end" class="svg-small fill-sql">1</text>
+            <text x="149" y="392" text-anchor="end" class="svg-small fill-sql">N</text>
+            <text x="163" y="380" class="svg-small fill-sql">turtle_id</text>
+
+            <line x1="280" y1="434" x2="426" y2="434" class="link stroke-sql" marker-end="url(#erdArrow)"/>
+            <text x="288" y="428" class="svg-small fill-sql">N</text>
+            <text x="300" y="428" class="svg-small fill-sql">program_id</text>
+            <text x="418" y="428" text-anchor="end" class="svg-small fill-sql">1</text>
+          </svg>
+        </div>
+        <figcaption>
+          Deux de ces quatre tables n'existent que parce qu'une colonne ne peut pas contenir une
+          liste&nbsp;: <code>turtle_tag</code> (créée par <code>@ElementCollection</code>) et
+          <code>observation</code> (créée par <code>@OneToMany</code>). Les mensurations, elles,
+          n'ont pas de table&nbsp;: <code>@Embeddable</code> les aplatit en deux colonnes de
+          <code>turtle</code> — un seul exemplaire, sans imbrication possible.
+
+          <br><br><strong>Les deux tables du bas se ressemblent, et ce sont deux motifs
+          opposés.</strong> <code>turtle_program</code> est une vraie <em>table de jointure</em>&nbsp;:
+          <strong>deux</strong> clés étrangères, une clé primaire composite, aucune donnée.
+          <code>turtle_tag</code> n'a qu'<strong>une</strong> clé étrangère et aucune clé primaire&nbsp;:
+          sa colonne <code>tag</code> contient la <strong>valeur</strong> elle-même, pas une
+          référence. C'est une collection de valeurs qui appartient à la tortue — l'analogue exact
+          du tableau <code>tags</code> du document, jusqu'à la duplication de la chaîne
+          «&nbsp;balise-argos&nbsp;» dans chaque ligne.
+        </figcaption>
+      </figure>
+
+      <figure>
+        <div class="scroller">
+          <svg viewBox="0 0 740 587" role="img"
+               aria-label="Le même domaine en documents : la collection turtles contient tags, mensurations et observations, référence habitats par un ObjectId, et porte la relation plusieurs-à-plusieurs dans un tableau de extended references qui recopie le nom et l'organisme du programme — aucune table de jointure.">
+            <defs>
+              <marker id="docArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" class="fill-mongo"/>
+              </marker>
+            </defs>
+
+            <text x="30" y="12" class="svg-title fill-mongo">Monde document · MongoDB</text>
+            <text x="400" y="12" text-anchor="end" class="svg-small fill-mongo">turtles · 121 documents</text>
+
+            <rect x="38" y="140" width="354" height="19" class="fill-mongo" opacity="0.12"/>
+            <rect x="38" y="159" width="354" height="57" class="fill-mongo" opacity="0.12"/>
+            <rect x="38" y="216" width="354" height="76" class="fill-mongo" opacity="0.12"/>
+            <rect x="38" y="330" width="354" height="76" class="fill-mongo" opacity="0.12"/>
+
+            <rect x="30" y="20" width="370" height="416" rx="3" class="box-mongo"/>
+
+            <text x="44" y="40" class="svg-small fill-ink">{</text>
+            <text x="44" y="59" class="svg-small fill-ink">  "_id":             ObjectId("6a95…"),</text>
+            <text x="44" y="78" class="svg-small fill-ink">  "name":            "Crush",</text>
+            <text x="44" y="97" class="svg-small fill-ink">  "species":         "Chelonia mydas",</text>
+            <text x="44" y="116" class="svg-small fill-ink">  "sex":             "M",</text>
+            <text x="44" y="135" class="svg-small fill-ink">  "annee_naissance": 1998,</text>
+            <text x="44" y="154" class="svg-small fill-ink">  "tags": [ "balise-argos", "adulte" ],</text>
+            <text x="44" y="173" class="svg-small fill-ink">  "measurements": {</text>
+            <text x="44" y="192" class="svg-small fill-ink">      "shellLengthCm": 98.5,</text>
+            <text x="44" y="211" class="svg-small fill-ink">      "weightKg":      132.0 },</text>
+            <text x="44" y="230" class="svg-small fill-ink">  "observations": [</text>
+            <text x="44" y="249" class="svg-small fill-ink">      { "date": …, "site": "Cairns",</text>
+            <text x="44" y="268" class="svg-small fill-ink">        "observer": …, "healthScore": 8 },</text>
+            <text x="44" y="287" class="svg-small fill-ink">      … ],</text>
+            <text x="44" y="306" class="svg-small fill-ink">  "habitatId":   ObjectId("6a95…"),</text>
+            <text x="44" y="325" class="svg-small fill-ink">  "habitatName": "Grande Barrière…",</text>
+            <text x="44" y="344" class="svg-small fill-ink">  "programs": [</text>
+            <text x="44" y="363" class="svg-small fill-ink">      { "programId": ObjectId("…"),</text>
+            <text x="44" y="382" class="svg-small fill-ink">        "name": "Argos Océan Indien",</text>
+            <text x="44" y="401" class="svg-small fill-ink">        "organisation": "CNRS" }, … ]</text>
+            <text x="44" y="420" class="svg-small fill-ink">}</text>
+
+            <text x="420" y="59" class="svg-small fill-signal">clé primaire, générée côté client</text>
+            <text x="420" y="135" class="svg-small fill-signal">@Field renomme birthYear</text>
+            <text x="420" y="154" class="svg-small fill-signal">remplace la table turtle_tag</text>
+            <text x="420" y="192" class="svg-small fill-signal">remplace @Embeddable (2 colonnes)</text>
+            <text x="420" y="249" class="svg-small fill-signal">remplace la table observation —</text>
+            <text x="420" y="268" class="svg-small fill-signal">avec sa PK, sa FK et sa jointure</text>
+            <text x="420" y="306" class="svg-small fill-signal">remplace la FK habitat_id</text>
+            <text x="420" y="325" class="svg-small fill-signal">copie dénormalisée : zéro jointure</text>
+            <text x="420" y="344" class="svg-small fill-signal">remplace la TABLE DE JOINTURE</text>
+            <text x="420" y="363" class="svg-small fill-signal">la référence : elle fait foi</text>
+            <text x="420" y="392" class="svg-small fill-signal">copies dénormalisées — « les tortues</text>
+            <text x="420" y="407" class="svg-small fill-signal">du CNRS » en une seule requête</text>
+
+            <text x="44" y="465" class="svg-small fill-mongo">habitats · 12 documents</text>
+            <rect x="30" y="471" width="350" height="86" rx="3" class="box-mongo"/>
+            <text x="44" y="497" class="svg-small fill-ink">{ "_id": ObjectId("6a95…"),</text>
+            <text x="44" y="516" class="svg-small fill-ink">  "name": "Récif de Toliara",   // unique</text>
+            <text x="44" y="535" class="svg-small fill-ink">  "ocean": "Océan Indien", "waterTempC": 27.5 }</text>
+
+            <text x="404" y="465" class="svg-small fill-mongo">programs · 8 documents</text>
+            <rect x="390" y="471" width="350" height="86" rx="3" class="box-mongo"/>
+            <text x="404" y="497" class="svg-small fill-ink">{ "_id": ObjectId("6a95…"),</text>
+            <text x="404" y="516" class="svg-small fill-ink">  "name": "Argos Océan Indien",  // unique</text>
+            <text x="404" y="535" class="svg-small fill-ink">  "organisation": "CNRS", … 15 champs }</text>
+
+            <polyline points="120,436 120,452 150,452 150,467" class="link stroke-mongo" stroke-dasharray="4 3" marker-end="url(#docArrow)"/>
+            <polyline points="330,436 330,452 560,452 560,467" class="link stroke-mongo" stroke-dasharray="4 3" marker-end="url(#docArrow)"/>
+            <text x="166" y="449" class="svg-small fill-mongo">habitatId</text>
+            <text x="576" y="449" text-anchor="end" class="svg-small fill-mongo">programs[].programId</text>
+          </svg>
+        </div>
+        <figcaption>
+          Les bandes vertes sont les parties <strong>embedded</strong>&nbsp;: elles remplacent
+          deux tables et un <code>@Embeddable</code>. Seul l'habitat reste à part, parce qu'il est
+          partagé par plusieurs tortues et évolue seul — et son nom est recopié dans la tortue
+          pour afficher une liste sans ouvrir la collection <code>habitats</code>. La collection
+          <code>turtles_dbref</code>, non représentée, ne sert qu'à la démonstration
+          <code>@DBRef</code> du chapitre&nbsp;2.
+
+          <br><br>Dernière ligne du document&nbsp;: <code>programIds</code> remplace à lui seul la
+          table de jointure <code>turtle_program</code>. <strong>MongoDB n'a pas de table de
+          jointure</strong> — il faut choisir un côté qui portera la relation.
+        </figcaption>
+      </figure>
+
+      <h3>Ce qui disparaît, ce qui apparaît</h3>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col" class="col-sql">Côté relationnel</th>
+              <th scope="col" class="col-mongo">Côté document</th>
+              <th scope="col">Ce que ça change</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row" class="mono">turtle</th><td class="mono">turtles</td><td>—</td></tr>
+            <tr><th scope="row" class="mono">shell_length_cm · weight_kg</th><td class="mono">measurements: { }</td><td>l'imbrication devient possible</td></tr>
+            <tr><th scope="row" class="mono">table turtle_tag + FK</th><td class="mono">tags: [ ]</td><td>une table en moins</td></tr>
+            <tr><th scope="row" class="mono">table observation + PK + FK</th><td class="mono">observations: [ { } ]</td><td>une table et une jointure en moins</td></tr>
+            <tr><th scope="row" class="mono">FK habitat_id</th><td class="mono">habitatId (ObjectId)</td><td>plus d'intégrité référentielle garantie</td></tr>
+            <tr><th scope="row" class="mono">table de jointure turtle_program</th><td class="mono">programs: [{ programId, … }]</td><td>la table de jointure n'existe plus : on choisit un côté</td></tr>
+            <tr><th scope="row">program.name, program.organisation <em>(une fois)</em></th><td class="mono">recopiés dans chaque tortue</td><td>une lecture en moins, une propagation en plus</td></tr>
+            <tr><th scope="row">index sur turtle_tag.tag</th><td class="mono">index multikey sur tags</td><td>même levier, deux mises en œuvre</td></tr>
+            <tr><th scope="row" class="no">rien</th><td class="mono">habitatName</td><td>lire vite, écrire deux fois</td></tr>
+            <tr><th scope="row" class="mono">BIGINT AUTO_INCREMENT</th><td class="mono">ObjectId</td><td>généré côté client, porte sa date</td></tr>
+            <tr><th scope="row">DDL, contraintes NOT NULL</th><td class="no">rien</td><td>la classe Java tient lieu de schéma</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="rule-of-thumb">
+        Le modèle document ne supprime pas la complexité, il la déplace&nbsp;: trois tables, deux
+        clés étrangères et toutes les jointures disparaissent — et la cohérence, elle, devient la
+        responsabilité de l'application.
+      </p>
+    </section>
+
+    <!-- ============================== 1 ============================== -->
+    <section id="concepts">
+      <h2><span class="chapter">Chapitre 1</span>Le vocabulaire, terme à terme</h2>
+
+      <p>
+        Presque tout ce qu'on sait du monde relationnel se transpose. Les deux seules notions
+        vraiment nouvelles sont l'<strong>embedding</strong> (chapitre 2) et le
+        <strong>pipeline</strong> (chapitre 5).
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Monde relationnel</th>
+              <th scope="col" class="col-mongo">MongoDB</th>
+              <th scope="col">Côté Spring Data</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">table</th><td>collection</td><td class="mono">@Document(collection = "turtles")</td></tr>
+            <tr><th scope="row">ligne</th><td>document (BSON)</td><td>une instance de la classe</td></tr>
+            <tr><th scope="row">colonne</th><td>champ</td><td class="mono">@Field("annee_naissance")</td></tr>
+            <tr><th scope="row">clé primaire <span class="mono">AUTO_INCREMENT</span></th><td class="mono">_id</td><td class="mono">@Id → ObjectId</td></tr>
+            <tr><th scope="row">clé étrangère + jointure</th><td>référence, ou embedding</td><td class="mono">String habitatId</td></tr>
+            <tr><th scope="row">schéma imposé</th><td>schéma souple</td><td>la classe Java fait office de schéma</td></tr>
+            <tr><th scope="row"><span class="mono">JOIN</span></th><td class="mono">$lookup</td><td class="mono">LookupOperation</td></tr>
+            <tr><th scope="row"><span class="mono">GROUP BY</span></th><td class="mono">$group</td><td class="mono">Aggregation</td></tr>
+            <tr><th scope="row"><span class="mono">JpaRepository</span></th><td>—</td><td class="mono">MongoRepository</td></tr>
+            <tr><th scope="row">API Criteria de JPA</th><td>—</td><td class="mono">MongoTemplate + Criteria</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>L'ObjectId, en douze octets</h3>
+
+      <pre><code>6a95afcd  80116a8f92  f32aaf
+└─ date ┘ └─ hasard ┘ └ cpt ┘
+ 4 octets   5 octets   3 octets</code></pre>
+
+      <p>
+        Il <strong>porte sa date de création</strong> — trier par <code>_id</code>, c'est presque
+        trier par date. Et il est généré <strong>par le client</strong>, sans aller-retour, là où
+        un <code>AUTO_INCREMENT</code> doit être attribué par le serveur.
+      </p>
+
+      <div class="callout">
+        <span class="tag">Le détail qui surprend</span>
+        <p>
+          BSON n'a pas de type « date sans heure ». Un <code>LocalDate</code> du 14 mars est
+          stocké en instant UTC — et ressort daté du 13 à 23 h en heure de Paris. Stockez des
+          <code>Instant</code>, ou une chaîne <code>yyyy-MM-dd</code> quand seule la date compte.
+        </p>
+      </div>
+
+      <p class="rule-of-thumb">
+        Le schéma n'a pas disparu&nbsp;: il a changé de place. Il est passé du moteur vers votre
+        code — plus souple, et entièrement sous votre responsabilité.
+      </p>
+    </section>
+
+    <!-- ============================== 2 ============================== -->
+    <section id="mapping">
+      <h2><span class="chapter">Chapitre 2</span>Embedding ou reference</h2>
+
+      <p>
+        C'est <em>la</em> décision de modélisation, et elle se prend champ par champ. Voici la même
+        lecture — une tortue avec ses observations — dans les deux modèles.
+      </p>
+
+      <figure>
+        <div class="scroller">
+          <svg viewBox="0 0 780 300" role="img"
+               aria-label="À gauche, lire une tortue relationnelle demande quatre requêtes vers quatre tables ; à droite, le même métier tient dans un document lu en une seule requête, l'habitat restant référencé.">
+            <defs>
+              <marker id="arrowSql" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" class="fill-sql"/>
+              </marker>
+              <marker id="arrowMongo" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" class="fill-mongo"/>
+              </marker>
+            </defs>
+
+            <!-- séparateur -->
+            <line x1="390" y1="10" x2="390" y2="290" class="link" stroke-dasharray="3 4" opacity="0.4"/>
+
+            <!-- ===== côté SQL ===== -->
+            <text x="20" y="24" class="svg-title fill-sql">4 tables</text>
+
+            <rect x="120" y="120" width="150" height="46" rx="3" class="box-sql"/>
+            <text x="195" y="142" text-anchor="middle" class="svg-label fill-ink">turtle</text>
+            <text x="195" y="158" text-anchor="middle" class="svg-small fill-ink" opacity="0.7">id · name · species</text>
+
+            <rect x="120" y="30" width="150" height="38" rx="3" class="box"/>
+            <text x="195" y="54" text-anchor="middle" class="svg-label fill-ink">habitat</text>
+
+            <rect x="20" y="220" width="150" height="38" rx="3" class="box"/>
+            <text x="95" y="244" text-anchor="middle" class="svg-label fill-ink">observation</text>
+
+            <rect x="200" y="220" width="150" height="38" rx="3" class="box"/>
+            <text x="275" y="244" text-anchor="middle" class="svg-label fill-ink">turtle_tag</text>
+
+            <line x1="195" y1="120" x2="195" y2="72" class="link stroke-sql" marker-end="url(#arrowSql)"/>
+            <text x="203" y="100" class="svg-small fill-sql">habitat_id</text>
+
+            <line x1="95" y1="220" x2="140" y2="170" class="link stroke-sql" marker-end="url(#arrowSql)"/>
+            <line x1="275" y1="220" x2="245" y2="170" class="link stroke-sql" marker-end="url(#arrowSql)"/>
+            <text x="20" y="200" class="svg-small fill-sql">turtle_id</text>
+            <text x="285" y="200" class="svg-small fill-sql">turtle_id</text>
+
+            <text x="20" y="285" class="svg-small fill-sql">4 allers-retours pour reconstituer une tortue</text>
+
+            <!-- ===== côté document ===== -->
+            <text x="420" y="24" class="svg-title fill-mongo">1 document</text>
+
+            <rect x="420" y="40" width="230" height="200" rx="3" class="box-mongo"/>
+            <text x="436" y="64" class="svg-label fill-ink">turtles</text>
+
+            <line x1="420" y1="76" x2="650" y2="76" class="link" opacity="0.35"/>
+            <text x="436" y="98"  class="svg-small fill-ink">name · species · annee_naissance</text>
+            <text x="436" y="122" class="svg-small fill-ink">tags: [ … ]</text>
+            <text x="436" y="146" class="svg-small fill-ink">measurements: { … }</text>
+            <text x="436" y="170" class="svg-small fill-ink">observations: [ { … }, { … } ]</text>
+            <text x="436" y="200" class="svg-small fill-mongo">habitatId: ObjectId(…)</text>
+            <text x="436" y="220" class="svg-small fill-ink" opacity="0.7">habitatName: "Récif de Toliara"</text>
+
+            <rect x="690" y="120" width="76" height="38" rx="3" class="box"/>
+            <text x="728" y="144" text-anchor="middle" class="svg-label fill-ink">habitats</text>
+
+            <line x1="650" y1="196" x2="728" y2="162" class="link stroke-mongo" stroke-dasharray="4 3" marker-end="url(#arrowMongo)"/>
+            <text x="600" y="262" text-anchor="middle" class="svg-small fill-mongo">1 aller-retour — la 2ᵉ requête est optionnelle</text>
+          </svg>
+        </div>
+        <figcaption>
+          Les observations et les tags n'ont pas de sens hors de leur tortue&nbsp;: ils sont
+          <strong>embedded</strong>. L'habitat, lui, est partagé et évolue seul&nbsp;: il reste
+          <strong>référencé</strong> — et son nom est dupliqué dans la tortue pour afficher une
+          liste sans jamais ouvrir la collection <code>habitats</code>.
+        </figcaption>
+      </figure>
+
+      <h3>La question qui tranche</h3>
+
+      <figure>
+        <div class="scroller">
+          <svg viewBox="0 0 700 300" role="img"
+               aria-label="Arbre de décision : si la donnée n'est pas lue avec son parent, ou ne lui appartient pas, la référencer (reference) ; si le tableau n'est pas borné, en faire une collection dédiée ; sinon, l'embedding.">
+            <defs>
+              <marker id="arrowInk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" class="fill-ink"/>
+              </marker>
+              <marker id="arrowEmbed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" class="fill-mongo"/>
+              </marker>
+            </defs>
+
+            <rect x="30" y="20" width="290" height="44" rx="3" class="box"/>
+            <text x="175" y="41" text-anchor="middle" class="svg-label fill-ink">Lue avec son parent,</text>
+            <text x="175" y="57" text-anchor="middle" class="svg-label fill-ink">presque à chaque fois ?</text>
+
+            <rect x="30" y="118" width="290" height="44" rx="3" class="box"/>
+            <text x="175" y="139" text-anchor="middle" class="svg-label fill-ink">Elle appartient au parent</text>
+            <text x="175" y="155" text-anchor="middle" class="svg-label fill-ink">(aucun sens toute seule) ?</text>
+
+            <rect x="30" y="216" width="290" height="44" rx="3" class="box"/>
+            <text x="175" y="237" text-anchor="middle" class="svg-label fill-ink">Le tableau reste borné</text>
+            <text x="175" y="253" text-anchor="middle" class="svg-label fill-ink">(dizaines, pas millions) ?</text>
+
+            <line x1="175" y1="64"  x2="175" y2="112" class="link" marker-end="url(#arrowInk)"/>
+            <line x1="175" y1="162" x2="175" y2="210" class="link" marker-end="url(#arrowInk)"/>
+            <text x="183" y="92"  class="svg-small fill-ink">oui</text>
+            <text x="183" y="190" class="svg-small fill-ink">oui</text>
+
+            <line x1="320" y1="42"  x2="428" y2="42"  class="link" marker-end="url(#arrowInk)"/>
+            <line x1="320" y1="140" x2="428" y2="140" class="link" marker-end="url(#arrowInk)"/>
+            <line x1="320" y1="238" x2="428" y2="238" class="link" marker-end="url(#arrowInk)"/>
+            <text x="360" y="34"  class="svg-small fill-ink">non</text>
+            <text x="360" y="132" class="svg-small fill-ink">non</text>
+            <text x="360" y="230" class="svg-small fill-ink">non</text>
+
+            <rect x="435" y="20" width="235" height="44" rx="3" class="box-sql"/>
+            <text x="552" y="48" text-anchor="middle" class="svg-label fill-sql">Reference</text>
+
+            <rect x="435" y="118" width="235" height="44" rx="3" class="box-sql"/>
+            <text x="552" y="146" text-anchor="middle" class="svg-label fill-sql">Reference</text>
+
+            <rect x="435" y="216" width="235" height="44" rx="3" class="box"/>
+            <text x="552" y="237" text-anchor="middle" class="svg-label fill-ink">Collection dédiée</text>
+            <text x="552" y="253" text-anchor="middle" class="svg-small fill-ink" opacity="0.75">(motif « bucket »)</text>
+
+            <line x1="175" y1="260" x2="175" y2="286" class="link stroke-mongo" marker-end="url(#arrowEmbed)"/>
+            <text x="183" y="284" class="svg-small fill-mongo">oui → embedding</text>
+          </svg>
+        </div>
+        <figcaption>
+          Trois questions, posées dans cet ordre, pour chaque champ. Deux garde-fous les
+          encadrent&nbsp;: un document ne peut pas dépasser <strong>16&nbsp;Mo</strong>, et un
+          tableau qui grandit sans limite doit devenir une collection à part.
+        </figcaption>
+      </figure>
+
+      <h3>La règle — et le fait qu'elle s'applique champ par champ</h3>
+
+      <p>
+        On privilégie l'embedding quand les données appartiennent au même <strong>agrégat
+        métier</strong>, sont généralement <strong>lues ensemble</strong>, et ont un
+        <strong>cycle de vie commun</strong>. La formule qui circule chez les praticiens
+        MongoDB la résume bien&nbsp;: <em>«&nbsp;data that is accessed together should be stored
+        together&nbsp;»</em>.
+      </p>
+
+      <p>
+        On l'évite dès que la duplication devient coûteuse à maintenir. Si 100&nbsp;000
+        utilisateurs partagent la même entreprise, embarquer sa fiche complète, c'est la
+        dupliquer 100&nbsp;000 fois — et la maintenir autant de fois. L'entreprise ayant sa
+        propre existence, une référence vers son identifiant s'impose.
+      </p>
+
+      <p>
+        Le piège est de croire que la décision se prend par <em>entité</em>. Elle se prend par
+        <strong>champ</strong> — et l'habitat le démontre à lui seul, en tranchant dans les trois
+        sens à la fois&nbsp;:
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Champ de l'habitat</th>
+              <th scope="col" class="col-mongo">Traitement</th>
+              <th scope="col">Pourquoi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row" class="mono">name</th>
+              <td class="yes">copié dans chaque tortue</td>
+              <td>change une fois par décennie, affiché partout</td>
+            </tr>
+            <tr>
+              <th scope="row" class="mono">waterTempC</th>
+              <td class="no">non copié</td>
+              <td>c'est une mesure : elle change tout le temps</td>
+            </tr>
+            <tr>
+              <th scope="row">l'objet entier</th>
+              <td class="no">jamais embarqué</td>
+              <td>16 tortues le partagent, il a sa vie propre</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Le critère est un produit&nbsp;: <strong>fréquence de mise à jour × nombre de copies à
+        propager</strong>. Un nom d'habitat, c'est «&nbsp;rare × 16&nbsp;» — on copie. Une
+        température, «&nbsp;permanente × 16&nbsp;» — on ne copie pas. À 100&nbsp;000 copies, le
+        calcul penche bien plus vite.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">La même opération</th>
+              <th scope="col" class="col-sql">SQL</th>
+              <th scope="col" class="col-mongo">MongoDB</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Lire les tortues d'un habitat <strong>avec sa température</strong></th>
+              <td class="yes">1 requête (<code>join fetch</code>)</td>
+              <td>2 requêtes — la température n'est pas copiée</td>
+            </tr>
+            <tr>
+              <th scope="row">Changer la température</th>
+              <td>1 update, 1 ligne</td>
+              <td class="yes">1 <code>$set</code> — 1 document, <strong>0 tortue</strong></td>
+            </tr>
+            <tr>
+              <th scope="row">Renommer un organisme <em>(champ copié)</em></th>
+              <td class="yes">1 update, 2 lignes</td>
+              <td>2 updates + <strong>52 copies</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="rule-of-thumb">
+        Les deux premières lignes se lisent ensemble&nbsp;: côté document on a refusé de payer à
+        l'écriture, donc on paie à la lecture. La troisième montre le choix inverse, pris sur un
+        autre champ de la même base. Aucun modèle ne gagne — ils déplacent le coût. Modéliser,
+        c'est choisir de quel côté payer, en connaissant ses lectures.
+      </p>
+
+      <h3>Et <code>@DBRef</code> ?</h3>
+
+      <p>
+        Il stocke <code>{ $ref, $id }</code> et Spring Data résout la référence
+        <strong>à la lecture</strong>. Sur la liste complète, mesuré dans le projet&nbsp;:
+        <strong>12 requêtes</strong> pour douze tortues — et le même habitat rechargé autant de
+        fois qu'il est référencé, sans aucun cache.
+      </p>
+
+      <p>
+        Surtout, <code>@DBRef</code> n'existe pas côté serveur&nbsp;: aucun <code>$lookup</code>,
+        aucun filtre, aucun tri ne peut porter sur l'objet lié. Préférez une manual reference —
+        en n'oubliant pas de la stocker au bon type&nbsp;:
+      </p>
+
+      <pre><code>@Field(targetType = FieldType.OBJECT_ID)   // ← sans ça, $lookup ne trouvera jamais rien
+private String habitatId;</code></pre>
+
+      <h3>Plusieurs-à-plusieurs : la table qui disparaît</h3>
+
+      <p>
+        Une tortue suit plusieurs programmes de recherche, un programme suit plusieurs tortues.
+        C'est la seule relation du projet qui produise, côté relationnel, une vraie
+        <strong>table de jointure</strong> — et la seule qui n'ait <strong>aucun équivalent</strong>
+        côté document.
+      </p>
+
+      <div class="split">
+        <div class="panel panel--sql">
+          <h4>La relation vit entre les deux</h4>
+          <pre><code>turtle_program
+  turtle_id   FK → turtle.id   ┐ PRIMARY KEY
+  program_id  FK → program.id  ┘ composite
+
+-- inscrire :
+insert into turtle_program
+  (turtle_id, program_id) values (?, ?)</code></pre>
+          <p>Ni la tortue ni le programme ne sont modifiés. Les deux sens de lecture coûtent
+          pareil, et la clé primaire composite interdit la double inscription.</p>
+        </div>
+
+        <div class="panel panel--mongo">
+          <h4>La relation vit d'un seul côté</h4>
+          <pre><code>// dans le document tortue
+"programs": [
+  { "programId":    ObjectId("…"),
+    "name":         "Argos Océan Indien",
+    "organisation": "CNRS" } ]
+
+// inscrire :
+{ $addToSet: { programs: { … } } }</code></pre>
+          <p>Un seul document touché. <code>$addToSet</code> joue le rôle de la clé primaire
+          composite — mais rien ne garantit que l'identifiant existe.</p>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">La même question</th>
+              <th scope="col" class="col-sql">SQL</th>
+              <th scope="col" class="col-mongo">MongoDB</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Les programmes d'une tortue</th>
+              <td>2 requêtes — jointure <code>turtle_program</code> → <code>program</code></td>
+              <td class="yes">le document les contient déjà (+1 <code>$in</code> pour les libellés)</td>
+            </tr>
+            <tr>
+              <th scope="row">Les tortues d'un programme <em>(35)</em></th>
+              <td class="yes">1 requête — on filtre sur <code>program.name</code></td>
+              <td class="yes">1 requête — grâce au nom recopié (2 par la référence seule)</td>
+            </tr>
+            <tr>
+              <th scope="row"><strong>Les tortues du CNRS <em>(52)</em></strong></th>
+              <td>1 requête, 2 jointures — <strong>rien de dupliqué</strong></td>
+              <td class="yes">1 requête, 0 jointure — <strong>parce que l'organisme est dupliqué</strong></td>
+            </tr>
+            <tr>
+              <th scope="row">Renommer un organisme</th>
+              <td class="yes">1 <code>UPDATE</code>, 2 lignes</td>
+              <td>2 écritures : 2 sources, puis <strong>52 copies</strong></td>
+            </tr>
+            <tr>
+              <th scope="row">Inscrire une tortue</th>
+              <td>1 <code>INSERT</code> dans la table de jointure</td>
+              <td>1 <code>$addToSet</code> sur la tortue</td>
+            </tr>
+            <tr>
+              <th scope="row">Combien de tortues par programme</th>
+              <td><code>GROUP BY</code> sur la table de jointure</td>
+              <td><code>$lookup</code> dont le <code>foreignField</code> est un tableau</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout">
+        <span class="tag">Ce que la contrainte garantissait, et qui devient votre travail</span>
+        <p>
+          <strong>La clé primaire composite</strong> empêchait la double inscription → côté document,
+          c'est <code>$addToSet</code> qui s'en charge.
+          <strong>La clé étrangère</strong> empêchait de référencer un programme inexistant →
+          <strong>rien</strong> ne l'empêche côté document.
+          <strong>Le <code>ON DELETE CASCADE</code></strong> nettoyait la table de jointure →
+          il faut désormais un <code>$pull</code> sur toutes les tortues concernées, à écrire soi-même.
+        </p>
+      </div>
+
+      <h3>La duplication, choix de conception plutôt que faute</h3>
+
+      <p>
+        Le tableau ne contient pas des identifiants nus&nbsp;: chaque élément porte
+        l'identifiant <strong>plus une copie</strong> du nom et de l'organisme. C'est le motif de
+        l'<em>extended reference</em> — et c'est ce qui permet de répondre à «&nbsp;toutes les
+        tortues du CNRS&nbsp;» (52 individus, répartis sur deux programmes) en une requête, sans
+        jointure ni <code>$lookup</code>.
+      </p>
+
+      <p>
+        Un programme a <strong>quinze champs</strong>&nbsp;: acronyme, responsable scientifique,
+        budget, site web, description de plusieurs lignes, protocole de terrain imbriqué, statut,
+        années de début et de fin… La copie n'en emporte que <strong>deux</strong>. C'est là que
+        la dénormalisation se distingue de la duplication naïve&nbsp;: on ne recopie pas
+        l'entité, on recopie <em>l'étiquette qu'on affiche</em>. Appelez
+        <code>/api/mongo/programs/of-turtle/{id}</code> et comptez les champs de la
+        réponse&nbsp;: <strong>trois</strong>, contre quinze pour son jumeau SQL. Les douze autres
+        sont restés dans la collection <code>programs</code>.
+      </p>
+
+      <div class="split">
+        <div class="panel panel--sql">
+          <h4>Normaliser, puis joindre</h4>
+          <pre><code>-- lire : 1 requête, 2 jointures
+where p.organisation = 'CNRS'
+
+-- renommer : 1 ligne, et c'est tout
+update program
+   set organisation = ?
+ where organisation = ?</code></pre>
+          <p>L'organisme n'existe qu'à un endroit. On peut interroger n'importe quel attribut
+          de n'importe quelle table sans l'avoir prévu à la modélisation.</p>
+        </div>
+
+        <div class="panel panel--mongo">
+          <h4>Dupliquer, puis lire d'un trait</h4>
+          <pre><code>// lire : 1 requête, 0 jointure
+{ "programs.organisation": "CNRS" }
+
+// renommer : 2 écritures
+db.programs.updateMany(…)
+db.turtles.updateMany(
+  { "programs.organisation": "CNRS" },
+  { $set: { "programs.$[e].organisation": … } },
+  { arrayFilters: [ { "e.organisation": … } ] })</code></pre>
+          <p><strong>52 documents touchés</strong>, une fenêtre d'incohérence entre les deux
+          écritures, et rien dans le moteur pour imposer la seconde.</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        <span class="tag">La nuance qui compte</span>
+        <p>
+          Dupliquer n'est pas <em>interdit</em> en SQL — entrepôts de données, tables de report,
+          vues matérialisées le font tous les jours. La différence est ailleurs&nbsp;: en SQL la
+          jointure est bon marché et correcte, donc la duplication reste une <strong>optimisation
+          de dernier recours</strong>, et le moteur offre des outils pour la tenir à jour
+          (vue matérialisée, trigger, colonne générée, <code>ON UPDATE CASCADE</code>).
+        </p>
+        <p>
+          En modèle document, la duplication est un <strong>choix de conception assumé</strong>,
+          prévu dès la modélisation — et il n'existe <strong>aucun</strong> mécanisme pour la
+          propager&nbsp;: c'est votre code, à chaque endroit où la source change.
+        </p>
+      </div>
+
+      <p>
+        D'où le critère, et il est simple&nbsp;: <strong>on ne duplique que ce qui est stable et
+        lu souvent</strong>. Un nom d'organisme change une fois par décennie et s'affiche à chaque
+        écran — bon candidat. Un poids qui change à chaque pesée — mauvais candidat. Et on garde
+        toujours la référence à côté de la copie&nbsp;: <code>programId</code> reste la source de
+        vérité, la copie n'est qu'un raccourci de lecture.
+      </p>
+
+      <p>
+        Le choix du côté qui porte la relation n'est pas neutre&nbsp;: ici « les programmes d'une
+        tortue » est gratuit. Si le besoin dominant était l'inverse, on stockerait
+        <code>turtleIds</code> côté programme — ou les deux, au prix de deux écritures à garder
+        cohérentes, sans transaction pour l'imposer.
+      </p>
+
+      <h3>Ce que ça coûte, mesuré</h3>
+
+      <dl class="gauges">
+        <div class="gauge">
+          <dt>Une page de 20 tortues, avec observations</dt>
+          <dd><span class="v v--sql">49</span> SQL <span aria-hidden="true">·</span> <span class="v v--mongo">1</span> Mongo</dd>
+        </div>
+        <div class="gauge">
+          <dt>Les 121 tortues d'un coup</dt>
+          <dd><span class="v v--sql">255</span> SQL <span aria-hidden="true">·</span> <span class="v v--mongo">2</span> Mongo</dd>
+        </div>
+        <div class="gauge">
+          <dt>Une tortue complète</dt>
+          <dd><span class="v v--sql">4</span> SQL <span aria-hidden="true">·</span> <span class="v v--mongo">1</span> Mongo</dd>
+        </div>
+        <div class="gauge">
+          <dt>Une tortue, requête optimisée</dt>
+          <dd><span class="v v--sql">2</span> join fetch <span aria-hidden="true">·</span> <span class="v v--mongo">2</span> référence</dd>
+        </div>
+        <div class="gauge">
+          <dt>Les 52 tortues du CNRS (N-N)</dt>
+          <dd><span class="v v--sql">1</span> requête, 2 jointures <span aria-hidden="true">·</span> <span class="v v--mongo">1</span> requête, 0 jointure</dd>
+        </div>
+      </dl>
+
+      <p class="rule-of-thumb">
+        JPA vous laisse modéliser d'abord et découvrir le coût des jointures ensuite. MongoDB vous
+        force à trancher tout de suite — en partant des <em>lectures</em> que fera l'application,
+        pas de la théorie des formes normales.
+      </p>
+    </section>
+
+    <!-- ============================== 3 ============================== -->
+    <section id="outils">
+      <h2><span class="chapter">Chapitre 3</span>Repository ou Template</h2>
+
+      <p>
+        <code>MongoRepository</code> est construit <strong>au-dessus</strong> de
+        <code>MongoTemplate</code>&nbsp;: même connexion, même convertisseur. Les mélanger dans un
+        même service est l'usage normal, pas un compromis.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Besoin</th>
+              <th scope="col" class="col-mongo">Repository</th>
+              <th scope="col" class="col-mongo">Template</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">CRUD, pagination, tri</th><td class="yes">oui</td><td class="yes">oui</td></tr>
+            <tr><th scope="row">Requête connue à la compilation</th><td class="yes">oui</td><td class="no">verbeux</td></tr>
+            <tr><th scope="row">Critères assemblés à l'exécution</th><td class="no">non</td><td class="yes">oui</td></tr>
+            <tr><th scope="row">Modifier un seul champ</th><td class="no">non</td><td class="yes">$set · $inc · $push</td></tr>
+            <tr><th scope="row">Upsert, findAndModify (atomique)</th><td class="no">non</td><td class="yes">oui</td></tr>
+            <tr><th scope="row">Écriture en masse</th><td class="no">non</td><td class="yes">updateMulti · bulkOps</td></tr>
+            <tr><th scope="row">Pipeline d'agrégation</th><td class="no">@Aggregation, figé</td><td class="yes">construit à l'exécution</td></tr>
+            <tr><th scope="row">Lire le BSON brut</th><td class="no">non</td><td class="yes">org.bson.Document</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Pourquoi <code>save()</code> ne suffit pas</h3>
+
+      <p>Même intention — corriger un poids — et voici ce qui part réellement sur le réseau&nbsp;:</p>
+
+      <div class="split">
+        <div class="panel panel--sql">
+          <h4>repository.save(tortue)</h4>
+          <pre><code>{ "update": "turtles",
+  "updates": [{
+    "q": { "_id": … },
+    "u": { "_id": …,
+           "name": "Crush",
+           "species": "Chelonia mydas",
+           "tags": [ … ],
+           "measurements": { … },
+           "observations": [ … ],
+           … } }] }</code></pre>
+          <p>Une lecture, puis le document entier réécrit. Tout ce qu'un autre client aurait
+          modifié entre-temps est écrasé au passage.</p>
+          <p class="meter"><b>2</b> allers-retours</p>
+        </div>
+
+        <div class="panel panel--mongo">
+          <h4>template.updateFirst($set)</h4>
+          <pre><code>{ "update": "turtles",
+  "updates": [{
+    "q": { "_id": … },
+    "u": { "$set": {
+             "measurements.weightKg": 140.0
+    } } }] }</code></pre>
+          <p>Aucune lecture préalable, un seul champ sur le réseau, et rien d'autre n'est touché
+          dans le document.</p>
+          <p class="meter"><b>1</b> aller-retour</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        <span class="tag">Le piège caché</span>
+        <p>
+          Le même problème existe en JPA — mais Hibernate le masque&nbsp;: le <em>dirty checking</em>
+          n'écrit que les colonnes modifiées. Spring Data Mongo, lui, ne suit pas les objets.
+          D'où l'importance de connaître le <code>MongoTemplate</code>.
+        </p>
+      </div>
+
+      <p class="rule-of-thumb">
+        Figé à la compilation → repository. Dynamique, partiel ou atomique → template. Les
+        20&nbsp;% de cas qui relèvent du template sont précisément ceux où une mauvaise solution
+        fait mal en production.
+      </p>
+    </section>
+
+    <!-- ============================== 4 ============================== -->
+    <section id="requetes">
+      <h2><span class="chapter">Chapitre 4</span>Requêtes et projections</h2>
+
+      <p>
+        La bonne nouvelle&nbsp;: les <strong>signatures sont identiques</strong> dans les deux
+        mondes. Seule la traduction change.
+      </p>
+
+      <div class="split">
+        <div class="panel panel--sql">
+          <h4>JPA</h4>
+          <pre><code>List&lt;Turtle&gt; findBySpecies(String s);</code></pre>
+          <p>→ <code>select … from turtle where species = ?</code></p>
+        </div>
+        <div class="panel panel--mongo">
+          <h4>MongoDB</h4>
+          <pre><code>List&lt;Turtle&gt; findBySpecies(String s);</code></pre>
+          <p>→ <code>{ "species": "Chelonia mydas" }</code></p>
+        </div>
+      </div>
+
+      <p>
+        Le point du nom de méthode devient le point du chemin BSON&nbsp;:
+        <code>findByMeasurementsShellLengthCmGreaterThan</code> donne
+        <code>{ "measurements.shellLengthCm": { "$gt": 90 } }</code>. Et sur un tableau,
+        <strong>l'égalité signifie « contient »</strong> — <code>{ "tags": "balise-argos" }</code>
+        sélectionne les documents dont le tableau contient cette valeur.
+      </p>
+
+      <div class="callout">
+        <span class="tag">L'erreur silencieuse à montrer en cours</span>
+        <p>
+          Le champ Java <code>birthYear</code> est stocké sous le nom
+          <code>annee_naissance</code> (<code>@Field</code>). Alors&nbsp;:
+        </p>
+        <pre><code>findByBirthYearLessThan(int year)              ✅  nom JAVA
+@Query("{ 'annee_naissance': { $lt: ?0 } }")   ✅  nom STOCKÉ
+@Query("{ 'birthYear': { $lt: ?0 } }")         ❌  zéro résultat, aucune erreur</code></pre>
+        <p>
+          Le JSON d'un <code>@Query</code> part <strong>tel quel</strong> vers le serveur&nbsp;:
+          Spring Data n'y traduit pas les noms de champs. La derived query, elle, passe par le
+          mapping.
+        </p>
+      </div>
+
+      <h3>Trois projections, trois coûts</h3>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Forme</th>
+              <th scope="col">Ce que le serveur envoie</th>
+              <th scope="col">Filtré par</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Interface fermée</th>
+              <td>2 champs — Spring Data ajoute <code>"projection": { name: 1, species: 1 }</code></td>
+              <td class="yes">MongoDB</td>
+            </tr>
+            <tr>
+              <th scope="row">Interface ouverte <span class="mono">@Value</span></th>
+              <td>tout le document — l'expression SpEL peut tout toucher</td>
+              <td class="no">l'application</td>
+            </tr>
+            <tr>
+              <th scope="row">DTO <span class="mono">record</span></th>
+              <td>les champs du record, comme l'interface fermée</td>
+              <td class="yes">MongoDB</td>
+            </tr>
+            <tr>
+              <th scope="row"><span class="mono">findAll()</span> puis <span class="mono">.map()</span></th>
+              <td>tout le document</td>
+              <td class="no">l'application</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Sur douze tortues, aucune importance. Sur une collection réelle, c'est la différence entre
+        quelques kilo-octets et plusieurs méga-octets par requête.
+      </p>
+
+      <p class="rule-of-thumb">
+        Derived query tant que le nom reste lisible, <code>@Query</code> quand le filtre devient
+        précis, <code>MongoTemplate</code> quand il devient dynamique. Et une projection dès que
+        l'écran n'affiche que trois champs.
+      </p>
+    </section>
+
+    <!-- ============================== 5 ============================== -->
+    <section id="pipeline">
+      <h2><span class="chapter">Chapitre 5</span>Le pipeline d'agrégation</h2>
+
+      <p>
+        En SQL on <strong>décrit le résultat</strong> et le moteur choisit son plan. En MongoDB on
+        décrit une <strong>suite d'étapes</strong>&nbsp;: chacune reçoit un flux de documents et en
+        produit un autre.
+      </p>
+
+      <figure>
+        <div class="scroller">
+          <svg viewBox="0 0 700 430" role="img"
+               aria-label="Pipeline : 12 documents tortue, dépliés par unwind en 25 observations, groupés par site en 7 documents, triés et limités à 5, puis projetés en 5 lignes de résultat.">
+            <defs>
+              <marker id="arrowFlow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" class="fill-ink"/>
+              </marker>
+            </defs>
+
+            <!-- flux -->
+            <rect x="60" y="14" width="300" height="38" rx="19" class="box-mongo"/>
+            <text x="210" y="38" text-anchor="middle" class="svg-label fill-ink">12 documents « tortue »</text>
+
+            <line x1="210" y1="52" x2="210" y2="82" class="link" marker-end="url(#arrowFlow)"/>
+
+            <rect x="60" y="86" width="300" height="42" rx="3" class="box"/>
+            <text x="210" y="112" text-anchor="middle" class="svg-label fill-mongo">$unwind: "$observations"</text>
+            <text x="400" y="112" class="svg-small fill-ink" opacity="0.8">aucun équivalent SQL</text>
+
+            <line x1="210" y1="128" x2="210" y2="158" class="link" marker-end="url(#arrowFlow)"/>
+
+            <rect x="60" y="162" width="300" height="38" rx="19" class="box-mongo"/>
+            <text x="210" y="186" text-anchor="middle" class="svg-label fill-ink">25 documents « observation »</text>
+
+            <line x1="210" y1="200" x2="210" y2="230" class="link" marker-end="url(#arrowFlow)"/>
+
+            <rect x="60" y="234" width="300" height="42" rx="3" class="box"/>
+            <text x="210" y="260" text-anchor="middle" class="svg-label fill-mongo">$group: { _id: "$…site" }</text>
+            <text x="400" y="260" class="svg-small fill-ink" opacity="0.8">≈ GROUP BY</text>
+
+            <line x1="210" y1="276" x2="210" y2="306" class="link" marker-end="url(#arrowFlow)"/>
+
+            <rect x="60" y="310" width="300" height="38" rx="19" class="box-mongo"/>
+            <text x="210" y="334" text-anchor="middle" class="svg-label fill-ink">7 documents « site »</text>
+
+            <line x1="210" y1="348" x2="210" y2="378" class="link" marker-end="url(#arrowFlow)"/>
+
+            <rect x="60" y="382" width="300" height="42" rx="3" class="box"/>
+            <text x="210" y="408" text-anchor="middle" class="svg-label fill-mongo">$sort · $limit 5 · $project</text>
+            <text x="400" y="408" class="svg-small fill-ink" opacity="0.8">≈ ORDER BY · LIMIT · SELECT</text>
+
+            <!-- rappel du $match -->
+            <line x1="30" y1="14" x2="30" y2="70" class="link stroke-signal" stroke-dasharray="3 3" opacity="0.7"/>
+            <text x="8" y="86" class="svg-small fill-signal">$match ici</text>
+          </svg>
+        </div>
+        <figcaption>
+          Le pipeline de <code>/api/mongo/aggregation/sites</code>, avec le nombre réel de
+          documents à chaque étage. Règle de performance n°1&nbsp;: placer <code>$match</code>
+          <strong>en tête</strong> — là il peut utiliser les index et réduit le flux avant le
+          <code>$group</code>&nbsp;; placé après, il travaille sur tout le volume.
+        </figcaption>
+      </figure>
+
+      <h3>Le dictionnaire</h3>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col" class="col-mongo">Étape</th>
+              <th scope="col">Équivalent SQL</th>
+              <th scope="col">Rôle</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row" class="mono">$match</th><td class="mono">WHERE</td><td>filtrer</td></tr>
+            <tr><th scope="row" class="mono">$project</th><td class="mono">SELECT</td><td>choisir, renommer, calculer</td></tr>
+            <tr><th scope="row" class="mono">$group</th><td class="mono">GROUP BY</td><td>$sum · $avg · $min · $max · $push</td></tr>
+            <tr><th scope="row" class="mono">$sort</th><td class="mono">ORDER BY</td><td>trier</td></tr>
+            <tr><th scope="row" class="mono">$limit / $skip</th><td class="mono">LIMIT / OFFSET</td><td>paginer</td></tr>
+            <tr><th scope="row" class="mono">$lookup</th><td class="mono">LEFT JOIN</td><td>joindre une autre collection</td></tr>
+            <tr><th scope="row" class="mono">$unwind</th><td class="no">aucun</td><td>déplier un tableau en N documents</td></tr>
+            <tr><th scope="row" class="mono">$bucket</th><td class="mono">CASE WHEN + GROUP BY</td><td>histogramme</td></tr>
+            <tr><th scope="row" class="mono">$out / $merge</th><td class="mono">CREATE TABLE AS SELECT</td><td>écrire le résultat</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout">
+        <span class="tag">Trois pièges du $lookup</span>
+        <p>
+          <strong>1.</strong> Le résultat est un <em>tableau</em> (0, 1 ou n éléments)&nbsp;: on
+          enchaîne presque toujours sur un <code>$unwind</code>.
+          <strong>2.</strong> <code>$lookup</code> + <code>$unwind</code> se comporte comme un
+          INNER JOIN — les documents sans correspondance disparaissent&nbsp;; pour un LEFT JOIN,
+          <code>preserveNullAndEmptyArrays: true</code>.
+          <strong>3.</strong> Les types doivent correspondre&nbsp;: une référence stockée en chaîne
+          ne matchera jamais un <code>_id</code> de type <code>ObjectId</code>. Sans erreur — juste
+          zéro résultat.
+        </p>
+      </div>
+
+      <p class="rule-of-thumb">
+        Le pipeline n'est pas « le SQL de MongoDB », c'est une chaîne de transformations. Un
+        <code>GROUP BY</code> s'y traduit sans effort&nbsp;; en échange on obtient
+        <code>$unwind</code>, <code>$bucket</code>, <code>$facet</code> et <code>$graphLookup</code>
+        — des choses que le SQL standard ne fait pas, ou très mal.
+      </p>
+    </section>
+
+    <footer class="colophon">
+      <p>
+        Fiche de synthèse du projet <strong>turtles</strong>&nbsp;: une application Spring Boot où
+        le même domaine — le suivi de tortues marines — est implémenté deux fois, en JPA sur H2 et
+        en Spring Data MongoDB. Chaque réponse REST contient les requêtes réellement envoyées à la
+        base, ce qui rend tous les chiffres de cette page vérifiables&nbsp;:
+      </p>
+      <pre><code>./mvnw spring-boot:run                                    # puis http://localhost:8080
+./mvnw spring-boot:run -Dspring-boot.run.arguments=--demo=all   # la même comparaison, en console</code></pre>
+      <p>
+        La collection Bruno (<code>bruno/</code>) rejoue chaque point du cours par paires
+        SQL&nbsp;/&nbsp;MongoDB&nbsp;; les mémos détaillés sont dans <code>docs/</code>.
+      </p>
+    </footer>
+
+  </main>
+</div>

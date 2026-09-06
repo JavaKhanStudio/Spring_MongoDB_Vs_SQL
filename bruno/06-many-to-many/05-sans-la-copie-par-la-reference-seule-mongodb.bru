@@ -1,0 +1,24 @@
+meta {
+  name: …sans la copie, par la référence seule — MongoDB
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/api/mongo/programs/Argos%20Océan%20Indien/turtles-by-id
+  body: none
+  auth: none
+}
+
+docs {
+  Le même résultat en n'utilisant que l'identifiant : **deux** requêtes.
+
+  1. `{ name: "Argos Océan Indien" }` sur `programs` → récupérer l'`_id` ;
+  2. `{ "programs.programId": ObjectId(…) }` sur `turtles`.
+
+  C'est exactement ce que la duplication du nom fait économiser. Et c'est aussi le
+  chemin **sûr** : l'identifiant, lui, ne change jamais — une copie peut être périmée.
+
+  À montrer côte à côte avec la n°4 : même résultat, 1 requête contre 2, pour un champ
+  dupliqué.
+}

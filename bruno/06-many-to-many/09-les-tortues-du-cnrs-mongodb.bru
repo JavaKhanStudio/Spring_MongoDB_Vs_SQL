@@ -1,0 +1,30 @@
+meta {
+  name: Les tortues du CNRS — MongoDB
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseUrl}}/api/mongo/programs/by-organisation/CNRS/turtles
+  body: none
+  auth: none
+}
+
+docs {
+  # Le cas d'école de la dénormalisation
+
+  ```javascript
+  { "programs.organisation": "CNRS" }
+  ```
+
+  **Une requête, aucune jointure, aucun `$lookup`** — servie par un index multikey.
+
+  Ce n'est possible **que parce que l'organisme est dupliqué** dans chaque tortue. Sans
+  cette copie, il faudrait d'abord chercher les programmes du CNRS, puis les tortues
+  correspondantes (comme en n°5), ou monter un pipeline avec `$lookup`.
+
+  C'est le point de bascule à faire comprendre : en modèle document, **on duplique une
+  donnée pour rendre une lecture possible en un seul aller-retour**. Ce n'est pas une
+  faute contre les formes normales, c'est un choix de conception — à condition de savoir
+  ce qu'il coûte. Voir les deux requêtes suivantes.
+}

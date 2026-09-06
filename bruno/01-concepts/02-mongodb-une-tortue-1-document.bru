@@ -1,0 +1,32 @@
+meta {
+  name: MongoDB — une tortue = 1 document
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/mongo/concepts/document/{{mongoId}}
+  body: none
+  auth: none
+}
+
+docs {
+  Le même métier, en **un seul document BSON**, sans mapping (`org.bson.Document`).
+
+  À montrer au tableau :
+  * `_id` est un `ObjectId`, pas un entier ;
+  * `tags` est un tableau, `measurements` un sous-document, `observations` un tableau de sous-documents ;
+  * `birthYear` est stocké sous le nom **`annee_naissance`** : c'est l'effet de `@Field` ;
+  * `_class` : Spring Data y range le type Java, pour savoir quoi reconstruire à la lecture ;
+  * les dates sont stockées en UTC (`$date`) — un `LocalDate` devient un instant.
+
+  | SQL | MongoDB |
+  |---|---|
+  | base | base |
+  | table | collection |
+  | ligne | document |
+  | colonne | champ |
+  | clé primaire | `_id` (`ObjectId`) |
+  | clé étrangère | référence, ou embedding |
+  | schéma imposé | schéma souple (+ validation JSON Schema optionnelle) |
+}

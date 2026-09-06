@@ -1,0 +1,22 @@
+meta {
+  name: Les tortues du CNRS — SQL
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/api/sql/programs/by-organisation/CNRS/turtles
+  body: none
+  auth: none
+}
+
+docs {
+  La question qui motive tout ce chapitre : **toutes les tortues liées au CNRS**.
+
+  Côté relationnel : **une requête**, trois tables, deux jointures — et
+  **aucune donnée dupliquée**. L'organisme n'est stocké qu'à un seul endroit,
+  `program.organisation`.
+
+  C'est précisément ce que la jointure achète : pouvoir interroger n'importe quel
+  attribut de n'importe quelle table, sans l'avoir prévu au moment de la modélisation.
+}
