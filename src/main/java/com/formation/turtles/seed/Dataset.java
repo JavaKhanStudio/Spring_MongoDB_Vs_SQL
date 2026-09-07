@@ -230,6 +230,125 @@ public final class Dataset {
                     obs("2024-11-28", "Cairns", "Marc Vidal", 7),
                     obs("2025-05-30", "Lady Elliot", "Aline Roy", 8))));
 
+    /**
+     * Le renfort de colonie : dix-huit tortues qui existent pour que l'exercice
+     * d'agregation rende des resultats lisibles.
+     *
+     * Sans elles, les six especes tombaient a 22, 21, 20, 20, 19 et 19 individus :
+     * « ne garder que les trois premieres especes » designait alors trois valeurs
+     * separees par un individu, avec une egalite a 20 qui rendait le classement
+     * instable d'une execution a l'autre. Le renfort creuse l'ecart sans toucher
+     * au generateur.
+     *
+     * Flibuste et Mascaret sont baguees et JAMAIS REVUES : leur tableau
+     * d'observations est vide. C'est le seul moyen de voir que $unwind ne
+     * multiplie pas seulement les documents, il fait disparaitre ceux dont le
+     * tableau est vide.
+     */
+    private static final List<TurtleSeed> COLONIE = List.of(
+            new TurtleSeed("Abysse", "Chelonia mydas", "F", 1994, List.of("adulte"),
+                    83.6, 99.1, "Grande Barrière de corail",
+                    List.of("Reef Watch Queensland"), List.of(
+                    obs("2023-01-10", "Cairns", "Aline Roy", 5))),
+
+            new TurtleSeed("Alcyon", "Chelonia mydas", "M", 1997, List.of("adulte"),
+                    87.3, 108.2, "Grande Barrière de corail",
+                    List.of("Reef Watch Queensland"), List.of(
+                    obs("2023-02-11", "Lady Elliot", "Marc Vidal", 6),
+                    obs("2024-03-12", "Heron Island", "Aline Roy", 7))),
+
+            new TurtleSeed("Aurore", "Chelonia mydas", "F", 2000, List.of("adulte"),
+                    90.9, 117.3, "Grande Barrière de corail",
+                    List.of("Reef Watch Queensland"), List.of(
+                    obs("2023-03-12", "Heron Island", "Aline Roy", 7),
+                    obs("2024-04-13", "Cairns", "Marc Vidal", 8),
+                    obs("2025-05-14", "Lady Elliot", "Aline Roy", 9))),
+
+            new TurtleSeed("Bengale", "Chelonia mydas", "M", 2003, List.of("adulte"),
+                    94.5, 126.4, "Grande Barrière de corail",
+                    List.of("Reef Watch Queensland"), List.of(
+                    obs("2023-04-13", "Cairns", "Marc Vidal", 8))),
+
+            new TurtleSeed("Cordouan", "Chelonia mydas", "F", 2006, List.of("adulte"),
+                    98.2, 135.5, "Grande Barrière de corail",
+                    List.of("Reef Watch Queensland"), List.of(
+                    obs("2023-05-14", "Lady Elliot", "Aline Roy", 9),
+                    obs("2024-06-15", "Heron Island", "Marc Vidal", 5))),
+
+            new TurtleSeed("Dune", "Chelonia mydas", "M", 2009, List.of("adulte"),
+                    101.8, 144.5, "Grande Barrière de corail",
+                    List.of("Reef Watch Queensland"), List.of(
+                    obs("2023-06-15", "Heron Island", "Marc Vidal", 5),
+                    obs("2024-07-16", "Cairns", "Aline Roy", 6),
+                    obs("2025-08-17", "Lady Elliot", "Marc Vidal", 7))),
+
+            new TurtleSeed("Embrun", "Chelonia mydas", "F", 2012, List.of("adulte"),
+                    105.5, 153.6, "Grande Barrière de corail",
+                    List.of("Reef Watch Queensland"), List.of(
+                    obs("2023-07-16", "Cairns", "Aline Roy", 6))),
+
+            new TurtleSeed("Flibuste", "Chelonia mydas", "M", 2015, List.of("adulte", "jamais revue"),
+                    109.1, 162.7, "Grande Barrière de corail",
+                    List.of("Reef Watch Queensland"), List.of()),
+
+            new TurtleSeed("Goéland", "Chelonia mydas", "F", 2018, List.of("adulte"),
+                    112.7, 171.8, "Grande Barrière de corail",
+                    List.of("Reef Watch Queensland"), List.of(
+                    obs("2023-09-18", "Heron Island", "Aline Roy", 8),
+                    obs("2024-01-10", "Cairns", "Marc Vidal", 9),
+                    obs("2025-02-11", "Lady Elliot", "Aline Roy", 5))),
+
+            new TurtleSeed("Halage", "Chelonia mydas", "M", 1995, List.of("adulte"),
+                    116.4, 180.9, "Grande Barrière de corail",
+                    List.of("Reef Watch Queensland"), List.of(
+                    obs("2023-01-10", "Cairns", "Marc Vidal", 9))),
+
+            new TurtleSeed("Istral", "Caretta caretta", "F", 1994, List.of("adulte"),
+                    75.8, 89.2, "Golfe du Mexique",
+                    List.of("Golfo Azul"), List.of(
+                    obs("2023-01-10", "Cabo Rojo", "Lucia Mendez", 5))),
+
+            new TurtleSeed("Jusant", "Caretta caretta", "M", 1997, List.of("adulte"),
+                    81.7, 98.3, "Golfe du Mexique",
+                    List.of("Golfo Azul"), List.of(
+                    obs("2023-02-11", "Padre Island", "Tom Baker", 6),
+                    obs("2024-03-12", "Tecolutla", "Lucia Mendez", 7))),
+
+            new TurtleSeed("Levant", "Caretta caretta", "F", 2000, List.of("adulte"),
+                    87.5, 107.5, "Golfe du Mexique",
+                    List.of("Golfo Azul"), List.of(
+                    obs("2023-03-12", "Tecolutla", "Lucia Mendez", 7),
+                    obs("2024-04-13", "Cabo Rojo", "Tom Baker", 8),
+                    obs("2025-05-14", "Padre Island", "Lucia Mendez", 9))),
+
+            new TurtleSeed("Mascaret", "Caretta caretta", "M", 2003, List.of("adulte", "jamais revue"),
+                    93.3, 116.7, "Golfe du Mexique",
+                    List.of("Golfo Azul"), List.of()),
+
+            new TurtleSeed("Noroît", "Caretta caretta", "F", 2006, List.of("adulte"),
+                    99.2, 125.8, "Golfe du Mexique",
+                    List.of("Golfo Azul"), List.of(
+                    obs("2023-05-14", "Padre Island", "Lucia Mendez", 9),
+                    obs("2024-06-15", "Tecolutla", "Tom Baker", 5))),
+
+            new TurtleSeed("Ondée", "Natator depressus", "F", 1994, List.of("adulte"),
+                    80.0, 67.5, "Récif de Ningaloo",
+                    List.of("Reef Watch Queensland"), List.of(
+                    obs("2023-01-10", "Exmouth", "Marc Vidal", 5))),
+
+            new TurtleSeed("Poulpe", "Natator depressus", "M", 1997, List.of("adulte"),
+                    85.0, 75.0, "Récif de Ningaloo",
+                    List.of("Reef Watch Queensland"), List.of(
+                    obs("2023-02-11", "Coral Bay", "Aline Roy", 6),
+                    obs("2024-03-12", "Exmouth", "Marc Vidal", 7))),
+
+            new TurtleSeed("Raz", "Natator depressus", "F", 2000, List.of("adulte"),
+                    90.0, 82.5, "Récif de Ningaloo",
+                    List.of("Reef Watch Queensland"), List.of(
+                    obs("2023-03-12", "Exmouth", "Marc Vidal", 7),
+                    obs("2024-04-13", "Coral Bay", "Aline Roy", 8),
+                    obs("2025-05-14", "Exmouth", "Marc Vidal", 9))));
+
     // ---------------------------------------------------------------------
     // Le generateur
     // ---------------------------------------------------------------------
@@ -274,6 +393,7 @@ public final class Dataset {
 
     private static List<TurtleSeed> build() {
         List<TurtleSeed> all = new ArrayList<>(NAMED);
+        all.addAll(COLONIE);
         Random random = new Random(SEED);
 
         // « Kélonia Réunion » reste volontairement sans inscrit : c'est ce qui permet de

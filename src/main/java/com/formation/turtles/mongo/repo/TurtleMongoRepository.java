@@ -97,8 +97,9 @@ public interface TurtleMongoRepository extends MongoRepository<Turtle, String> {
     List<Turtle> heavyOnesOfSpecies(String species, double minWeight);
 
     /**
-     * ATTENTION, piege classique : dans un @Query on ecrit le nom
-     * stocke (annee_naissance), pas le nom Java (birthYear).
+     * Spring traduit birthYear en annee_naissance, y compris dans un @Query.
+     * Le nom stocke ne devient obligatoire que hors mapping : shell, Compass,
+     * pipeline lance sur un nom de collection.
      */
     @Query("{ 'annee_naissance': { $lt: ?0 } }")
     List<Turtle> bornBefore(int year);
@@ -146,4 +147,9 @@ public interface TurtleMongoRepository extends MongoRepository<Turtle, String> {
             "{ $project: { _id: 0, key: '$_id', count: 1, avgShellLengthCm: '$avg', maxWeightKg: '$max' } }"
     })
     List<SpeciesStat> statsBySpecies();
+
+    @Query("{ 'species': ?0 }")
+    List<Turtle> ofSpecies(String species);
+
+
 }
