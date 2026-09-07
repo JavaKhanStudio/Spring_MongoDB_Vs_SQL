@@ -63,8 +63,6 @@ public class Turtle {
     private Integer birthYear;
 
     /**
-     * Une simple liste de mots-cles impose deja une table supplementaire.
-     *
      * Attention a ne pas confondre avec une table de jointure : turtle_tag ne
      * porte qu'une cle etrangere, et sa colonne tag contient la valeur
      * elle-meme. C'est une collection de valeurs, pas une relation vers une entite --
@@ -85,13 +83,6 @@ public class Turtle {
     /**
      * LA relation plusieurs-a-plusieurs : une tortue suit plusieurs programmes, un
      * programme suit plusieurs tortues.
-     *
-     * Ici, et seulement ici, on a une vraie table de jointure :
-     * turtle_program(turtle_id, program_id) -- deux cles etrangeres, aucune
-     * colonne de donnees. C'est le cote proprietaire de la relation.
-     *
-     * Cote MongoDB, cette table n'existe pas : le modele document n'a pas de table de
-     * jointure. Il faut choisir un cote (ou dupliquer des deux cotes).
      */
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "turtle_program",

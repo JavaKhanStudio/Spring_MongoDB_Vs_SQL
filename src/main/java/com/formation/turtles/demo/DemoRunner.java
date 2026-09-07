@@ -7,6 +7,7 @@ import com.formation.turtles.mongo.repo.ProgramMongoRepository;
 import com.formation.turtles.mongo.repo.TurtleMongoRepository;
 import com.formation.turtles.mongo.service.TurtleAggregationService;
 import com.formation.turtles.mongo.service.TurtleTemplateService;
+import com.formation.turtles.seed.SeedService;
 import com.formation.turtles.sql.repo.ProgramRepository;
 import com.formation.turtles.sql.repo.TurtleRepository;
 import com.formation.turtles.sql.service.TurtleSearchService;
@@ -31,6 +32,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 @Order(2)
 @RequiredArgsConstructor
 public class DemoRunner implements ApplicationRunner {
+    private final SeedService seed;
     private final TurtleRepository sqlTurtles;
     private final ProgramRepository sqlPrograms;
     private final TurtleSearchService sqlSearch;
@@ -45,6 +47,9 @@ public class DemoRunner implements ApplicationRunner {
         if (!args.containsOption("demo")) {
             return;
         }
+        // Rien n'est charge au demarrage (voir SeedService) : la demo console
+        // remplit les deux bases elle-meme avant de comparer quoi que ce soit.
+        seed.seed();
         String chapter = args.getOptionValues("demo").isEmpty() ? "all" : args.getOptionValues("demo").get(0);
 
         if (matches(chapter, "1")) {

@@ -3,3 +3,7 @@ target/
 .idea/
 *.iml
 *.log
+
+# Corrections des exercices : local seulement, ne doit pas partir aux etudiants
+src/main/java/com/correction/
+ScreenNumero.png

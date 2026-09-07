@@ -1,0 +1,33 @@
+meta {
+  name: Récupérer un identifiant Mongo
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/mongo/turtles
+  body: none
+  auth: none
+}
+
+script:post-response {
+  const first = res.body && res.body.result && res.body.result[0];
+  if (!first) {
+    throw new Error(
+      "La collection MongoDB « turtles » est vide : lancez d'abord « 02 · Charger le jeu de donnees »."
+    );
+  }
+  bru.setEnvVar("mongoId", first.id);
+}
+
+docs {
+  **À lancer juste après le chargement**, et à relancer après chaque rechargement.
+
+  Les `ObjectId` sont régénérés à chaque `POST /api/seed` : le script ci-dessus range
+  l'identifiant de la première tortue dans la variable d'environnement `mongoId`,
+  utilisée par toutes les requêtes suivantes.
+
+  Côté SQL, l'identifiant reste `1` (auto-increment) : c'est déjà une différence.
+
+  Si le script échoue, c'est que la collection est vide — repassez par la requête 02.
+}

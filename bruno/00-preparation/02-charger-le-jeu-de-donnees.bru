@@ -1,0 +1,55 @@
+meta {
+  name: Charger le jeu de données
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/seed
+  body: none
+  auth: none
+}
+
+script:post-response {
+  if (!res.body.loaded) {
+    throw new Error(
+      "Le chargement n'a rien mis en base. Verifiez que MongoDB tourne (localhost:27017) "
+      + "et regardez la console de l'application."
+    );
+  }
+}
+
+docs {
+  **La première requête de chaque séance.** Elle vide puis recharge les deux bases avec
+  le même `Dataset` : `POST /api/seed`.
+
+  Rien n'est chargé au démarrage de l'application, et c'est volontaire :
+
+  | | H2 | MongoDB |
+  |---|---|---|
+  | où vit la base | **dans la JVM** (`jdbc:h2:mem`) | dans un **serveur séparé** |
+  | quand elle se vide | à l'arrêt de l'application | au redémarrage du conteneur, sans prévenir l'application |
+
+  Un chargement au seul démarrage laisse donc les deux mondes se désynchroniser : H2 garde
+  ses lignes tant que l'application tourne, pendant que MongoDB, lui, a pu repartir de zéro.
+  Les comparaisons du cours n'ont plus aucun sens. Une commande explicite remet les deux à plat.
+
+  **Relancez-la** dès que MongoDB a redémarré, ou dès qu'une requête renvoie `result: []`
+  alors que son jumeau SQL répond.
+
+  La réponse compte ce que contient chaque monde — les mêmes chiffres des deux côtés,
+  puisque c'est le même jeu de données :
+
+  ```json
+  {
+    "action": "chargement",
+    "millis": 850,
+    "sql":   { "turtles": 121, "habitats": 12, "programs": 8 },
+    "mongo": { "turtles": 121, "habitats": 12, "programs": 8 },
+    "loaded": true
+  }
+  ```
+
+  `GET /api/seed` répond la même chose sans rien toucher : pratique pour vérifier l'état
+  des deux bases avant de chercher plus loin.
+}

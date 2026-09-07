@@ -26,15 +26,22 @@ public class SqlSeeder {
 
     @Transactional
     public void seed() {
+        // Les enfants d'abord : turtle_tag, observation et turtle_program partent
+        // en cascade avec leur tortue.
         turtles.deleteAll();
         habitats.deleteAll();
         programs.deleteAll();
+        // Sans ce flush, Hibernate garderait les suppressions en attente et les
+        // executerait APRES les insertions ci-dessous (l'ordre du flush est fige :
+        // insertions puis suppressions). Un second chargement violerait alors la
+        // contrainte d'unicite sur habitat.name.
+        turtles.flush();
 
         // 1. Les parents d'abord : sans habitat en base, pas de cle etrangere valide.
         Map<String, Habitat> byName = new HashMap<>();
         for (Dataset.HabitatSeed seed : Dataset.HABITATS) {
             Habitat habitat = habitats.save(
-                    new Habitat(seed.name(), seed.ocean(), seed.waterTempC(), seed.protectedArea()));
+                    new Habitat(null, seed.name(), seed.ocean(), seed.waterTempC(), seed.protectedArea()));
             byName.put(seed.name(), habitat);
         }
 

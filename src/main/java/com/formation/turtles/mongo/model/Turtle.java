@@ -65,17 +65,13 @@ public class Turtle {
     private String sex;
 
     /**
-     * L'annotation @Field decouple le nom Java du nom stocke. Utile pour raccourcir les
-     * cles (elles sont repetees dans chaque document) ou pour coller a un
-     * schema existant. Attention : les derived queries et les projections
-     * continuent d'utiliser le nom Java, mais un @Query en JSON brut doit,
-     * lui, utiliser le nom stocke.
+     * L'annotation @Field decouple le nom Java du nom stocke.
      */
     @Field("annee_naissance")
     private Integer birthYear;
 
     /**
-     * Un tableau de chaines : aucune table de collection, c'est un champ comme un autre.
+     * Un tableau de strings : aucune table de collection, c'est un champ comme un autre.
      *
      * Un @Indexed sur un tableau cree un index multikey : MongoDB indexe
      * chaque element separement, si bien que { tags: "balise-argos" } devient une

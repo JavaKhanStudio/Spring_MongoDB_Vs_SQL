@@ -18,9 +18,11 @@ import org.springframework.util.StringUtils;
  * L'equivalent JPA du TurtleTemplateService.search(...) : construire une
  * requete a l'execution, critere par critere.
  *
- * Meme idee, meme structure... et c'est bien le message : le
+ * Meme idee, meme structure
  * MongoTemplate n'est pas une bizarrerie de MongoDB, c'est le pendant de
  * l'API Criteria de JPA. Comparez simplement les deux fichiers cote a cote.
+ *
+ * com.formation.turtles.mongo.service.TurtleTemplateService;
  */
 @Service
 @RequiredArgsConstructor

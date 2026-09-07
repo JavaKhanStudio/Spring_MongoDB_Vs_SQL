@@ -19,6 +19,12 @@ public class HomeController {
         index.put("projet", "🐢 Spring Data MongoDB vs JPA");
         index.put("mode d'emploi", "Chaque réponse contient le champ 'queries' : "
                 + "la ou les requêtes réellement envoyées à la base.");
+        index.put("0. Préparation", List.of(
+                new Pair("Charger le jeu de données dans les deux bases (à faire en premier, "
+                                + "et à refaire après tout redémarrage de MongoDB)",
+                        "POST /api/seed", "POST /api/seed"),
+                new Pair("Les deux bases sont-elles chargées ?",
+                        "GET /api/seed", "GET /api/seed")));
 
         index.put("1. Concepts", List.of(
                 new Pair("Où vit physiquement une tortue ?",
