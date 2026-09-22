@@ -1,5 +1,7 @@
 # 🐢 Spring Data MongoDB vs JPA — le même domaine, implémenté deux fois
 
+<p align="center"><img src="docs/tortue.png" width="220" alt="Une tortue marine qui nage parmi les coraux"></p>
+
 Support de cours. Une seule application Spring Boot contient **deux implémentations
 complètes du même métier** — le suivi de tortues marines :
 
